@@ -1,0 +1,139 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    color: #222;
+}
+
+header {
+    background: #2f4858;
+    color: white;
+    padding: 20px;
+}
+
+header h1 {
+    margin: 0 0 15px 0;
+}
+
+nav a {
+    color: white;
+    margin-right: 15px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+main {
+    max-width: 1000px;
+    margin: 25px auto;
+    padding: 0 15px;
+}
+
+.bloc {
+    background: white;
+    padding: 20px;
+    border: 1px solid #ddd;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th,
+td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    background: #e9eef1;
+}
+
+input,
+select,
+textarea,
+button {
+    font: inherit;
+}
+
+input,
+select,
+textarea {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0 15px 0;
+    border: 1px solid #aaa;
+}
+
+button,
+.bouton {
+    display: inline-block;
+    background: #2f4858;
+    color: white;
+    border: 0;
+    padding: 10px 14px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.formulaire-recherche div {
+    display: flex;
+    gap: 10px;
+}
+
+.formulaire-recherche input {
+    margin: 0;
+}
+
+.disponible {
+    color: #1d7a35;
+    font-weight: bold;
+}
+
+.indisponible {
+    color: #b3261e;
+    font-weight: bold;
+}
+
+.message {
+    background: #e4f5e8;
+    border: 1px solid #8ccc99;
+    padding: 10px;
+}
+
+.erreurs {
+    background: #fdeaea;
+    border: 1px solid #d88989;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+.erreurs p {
+    margin: 5px 0;
+}
+
+@media (max-width: 700px) {
+    table,
+    thead,
+    tbody,
+    tr,
+    th,
+    td {
+        display: block;
+    }
+
+    th {
+        display: none;
+    }
+
+    td {
+        border-bottom: 0;
+    }
+
+    .formulaire-recherche div {
+        display: block;
+    }
+}

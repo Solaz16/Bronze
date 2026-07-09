@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../config/auth.php';
+
 if (!isset($titre_page)) {
     $titre_page = 'Bibliotheque';
 }

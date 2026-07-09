@@ -36,6 +36,12 @@ include __DIR__ . '/../templates/header.php';
         </p>
         <h3>Resume</h3>
         <p><?= nl2br(htmlspecialchars($livre['resume'])) ?></p>
+        <?php if (utilisateurConnecte()): ?>
+            <p>
+                <a class="bouton" href="modifier_livre.php?id=<?= (int) $livre['id'] ?>">Modifier</a>
+                <a class="bouton bouton-danger" href="supprimer_livre.php?id=<?= (int) $livre['id'] ?>">Supprimer</a>
+            </p>
+        <?php endif; ?>
         <a href="catalogue.php">Retour au catalogue</a>
     <?php endif; ?>
 </section>

@@ -5,17 +5,36 @@ require_once __DIR__ . '/../config/auth.php';
 pageProtegee();
 
 $pdo = connexionBDD();
+$id = (int) ($_GET['id'] ?? 0);
 $erreurs = [];
 $message = '';
-
 $categories = $pdo->query("SELECT id, nom FROM categories ORDER BY nom")->fetchAll(PDO::FETCH_ASSOC);
 
-$titre = '';
-$auteur = '';
-$isbn = '';
-$annee = '';
-$resume = '';
-$categorie_id = '';
+$requete = $pdo->prepare("SELECT * FROM livres WHERE id = :id");
+$requete->execute(['id' => $id]);
+$livre = $requete->fetch(PDO::FETCH_ASSOC);
+
+if (!$livre) {
+    $titre_page = 'Livre introuvable';
+    include __DIR__ . '/../templates/header.php';
+    ?>
+    <section class="bloc">
+        <h2>Livre introuvable</h2>
+        <p>Le livre demande n'existe pas.</p>
+        <a href="catalogue.php">Retour au catalogue</a>
+    </section>
+    <?php
+    include __DIR__ . '/../templates/footer.php';
+    exit;
+}
+
+$titre = $livre['titre'];
+$auteur = $livre['auteur'];
+$isbn = $livre['isbn'];
+$annee = $livre['annee_publication'];
+$resume = $livre['resume'];
+$categorie_id = $livre['categorie_id'];
+$disponible = $livre['disponible'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $titre = trim($_POST['titre'] ?? '');
@@ -24,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $annee = trim($_POST['annee_publication'] ?? '');
     $resume = trim($_POST['resume'] ?? '');
     $categorie_id = (int) ($_POST['categorie_id'] ?? 0);
+    $disponible = (int) ($_POST['disponible'] ?? 0);
 
     if ($titre === '') {
         $erreurs[] = 'Le titre est obligatoire.';
@@ -47,8 +67,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (count($erreurs) === 0) {
         try {
-            $sql = "INSERT INTO livres (titre, auteur, isbn, annee_publication, resume, categorie_id, disponible)
-                    VALUES (:titre, :auteur, :isbn, :annee_publication, :resume, :categorie_id, 1)";
+            $sql = "UPDATE livres
+                    SET titre = :titre, auteur = :auteur, isbn = :isbn, annee_publication = :annee_publication,
+                        resume = :resume, categorie_id = :categorie_id, disponible = :disponible
+                    WHERE id = :id";
             $requete = $pdo->prepare($sql);
             $requete->execute([
                 'titre' => $titre,
@@ -56,32 +78,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'isbn' => $isbn,
                 'annee_publication' => $annee === '' ? null : (int) $annee,
                 'resume' => $resume,
-                'categorie_id' => $categorie_id
+                'categorie_id' => $categorie_id,
+                'disponible' => $disponible,
+                'id' => $id
             ]);
-
-            $message = 'Le livre a bien ete ajoute.';
-            $titre = '';
-            $auteur = '';
-            $isbn = '';
-            $annee = '';
-            $resume = '';
-            $categorie_id = '';
+            $message = 'Le livre a bien ete modifie.';
         } catch (PDOException $e) {
             if ($e->getCode() === '23000') {
                 $erreurs[] = 'Cet ISBN existe deja.';
             } else {
-                $erreurs[] = "Impossible d'ajouter le livre.";
+                $erreurs[] = 'Impossible de modifier le livre.';
             }
         }
     }
 }
 
-$titre_page = 'Ajouter un livre';
+$titre_page = 'Modifier un livre';
 include __DIR__ . '/../templates/header.php';
 ?>
 
 <section class="bloc">
-    <h2>Ajouter un livre</h2>
+    <h2>Modifier un livre</h2>
 
     <?php if ($message !== ''): ?>
         <p class="message"><?= htmlspecialchars($message) ?></p>
@@ -110,7 +127,6 @@ include __DIR__ . '/../templates/header.php';
 
         <label for="categorie_id">Categorie</label>
         <select id="categorie_id" name="categorie_id">
-            <option value="">Choisir une categorie</option>
             <?php foreach ($categories as $categorie): ?>
                 <option value="<?= (int) $categorie['id'] ?>" <?= (int) $categorie_id === (int) $categorie['id'] ? 'selected' : '' ?>>
                     <?= htmlspecialchars($categorie['nom']) ?>
@@ -118,10 +134,16 @@ include __DIR__ . '/../templates/header.php';
             <?php endforeach; ?>
         </select>
 
+        <label for="disponible">Disponibilite</label>
+        <select id="disponible" name="disponible">
+            <option value="1" <?= (int) $disponible === 1 ? 'selected' : '' ?>>Disponible</option>
+            <option value="0" <?= (int) $disponible === 0 ? 'selected' : '' ?>>Indisponible</option>
+        </select>
+
         <label for="resume">Resume</label>
         <textarea id="resume" name="resume" rows="5"><?= htmlspecialchars($resume) ?></textarea>
 
-        <button type="submit">Ajouter</button>
+        <button type="submit">Enregistrer</button>
     </form>
 </section>
 

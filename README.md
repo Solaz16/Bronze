@@ -1,6 +1,6 @@
-# Application Bibliotheque - TP5 Bronze
+# Application Bibliotheque - TP5 Argent
 
-Cette application permet de gerer une petite bibliotheque avec les fonctions du niveau Bronze.
+Cette application permet de gerer une petite bibliotheque avec les fonctions du niveau Bronze et Argent.
 
 ## Fonctionnalites
 
@@ -9,8 +9,18 @@ Cette application permet de gerer une petite bibliotheque avec les fonctions du 
 - Affichage du detail d'un livre
 - Recherche par titre ou auteur
 - Ajout d'un nouveau livre
+- Modification et suppression de livres
+- Filtres par categorie, disponibilite et annee
+- Connexion et deconnexion
+- Sessions utilisateur
+- Gestion des utilisateurs
+- Desactivation d'un utilisateur
+- Affichage des emprunts en cours
+- Creation d'un emprunt
+- Affichage des emprunts en retard
 - Validation simple des champs
 - Gestion de l'ISBN unique
+- Gestion de l'email unique
 
 ## Installation
 
@@ -37,7 +47,14 @@ Avec WampServer, l'utilisateur MySQL par defaut est souvent `root` avec un mot d
 
 La base s'appelle `bibliotheque_tp5`.
 
-Elle contient deux tables :
+Elle contient quatre tables :
 
 - `categories`
 - `livres`
+- `utilisateurs`
+- `emprunts`
+
+## Comptes de test
+
+- `admin@example.com` / `admin123`
+- `lecteur@example.com` / `user123`

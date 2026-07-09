@@ -98,16 +98,16 @@ include __DIR__ . '/../templates/header.php';
         <tbody>
             <?php foreach ($utilisateurs as $utilisateur): ?>
                 <tr>
-                    <td><?= htmlspecialchars($utilisateur['nom']) ?></td>
-                    <td><?= htmlspecialchars($utilisateur['email']) ?></td>
-                    <td>
+                    <td data-label="Nom"><?= htmlspecialchars($utilisateur['nom']) ?></td>
+                    <td data-label="Email"><?= htmlspecialchars($utilisateur['email']) ?></td>
+                    <td data-label="Statut">
                         <?php if ($utilisateur['actif']): ?>
                             <span class="disponible">Actif</span>
                         <?php else: ?>
                             <span class="indisponible">Desactive</span>
                         <?php endif; ?>
                     </td>
-                    <td>
+                    <td data-label="Actions">
                         <a href="modifier_utilisateur.php?id=<?= (int) $utilisateur['id'] ?>">Modifier</a>
                         <?php if ($utilisateur['actif']): ?>
                             <a href="desactiver_utilisateur.php?id=<?= (int) $utilisateur['id'] ?>">Desactiver</a>

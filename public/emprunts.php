@@ -38,11 +38,11 @@ include __DIR__ . '/../templates/header.php';
             <tbody>
                 <?php foreach ($emprunts as $emprunt): ?>
                     <tr class="<?= (int) $emprunt['jours_retard'] > 0 ? 'ligne-retard' : '' ?>">
-                        <td><?= htmlspecialchars($emprunt['titre']) ?></td>
-                        <td><?= htmlspecialchars($emprunt['nom']) ?></td>
-                        <td><?= htmlspecialchars($emprunt['date_emprunt']) ?></td>
-                        <td><?= htmlspecialchars($emprunt['date_retour_prevue']) ?></td>
-                        <td>
+                        <td data-label="Livre"><?= htmlspecialchars($emprunt['titre']) ?></td>
+                        <td data-label="Utilisateur"><?= htmlspecialchars($emprunt['nom']) ?></td>
+                        <td data-label="Date emprunt"><?= htmlspecialchars($emprunt['date_emprunt']) ?></td>
+                        <td data-label="Retour prevu"><?= htmlspecialchars($emprunt['date_retour_prevue']) ?></td>
+                        <td data-label="Statut">
                             <?php if ((int) $emprunt['jours_retard'] > 0): ?>
                                 <span class="indisponible">En retard de <?= (int) $emprunt['jours_retard'] ?> jours</span>
                             <?php else: ?>

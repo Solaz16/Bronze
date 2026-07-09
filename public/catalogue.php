@@ -121,19 +121,19 @@ include __DIR__ . '/../templates/header.php';
             <tbody>
                 <?php foreach ($livres as $livre): ?>
                     <tr>
-                        <td><?= htmlspecialchars($livre['titre']) ?></td>
-                        <td><?= htmlspecialchars($livre['auteur']) ?></td>
-                        <td><?= htmlspecialchars($livre['categorie'] ?? 'Non classe') ?></td>
-                        <td>
+                        <td data-label="Titre"><?= htmlspecialchars($livre['titre']) ?></td>
+                        <td data-label="Auteur"><?= htmlspecialchars($livre['auteur']) ?></td>
+                        <td data-label="Categorie"><?= htmlspecialchars($livre['categorie'] ?? 'Non classe') ?></td>
+                        <td data-label="Disponibilite">
                             <?php if ($livre['disponible']): ?>
                                 <span class="disponible">Disponible</span>
                             <?php else: ?>
                                 <span class="indisponible">Indisponible</span>
                             <?php endif; ?>
                         </td>
-                        <td><a href="livre.php?id=<?= (int) $livre['id'] ?>">Voir</a></td>
+                        <td data-label="Detail"><a href="livre.php?id=<?= (int) $livre['id'] ?>">Voir</a></td>
                         <?php if (utilisateurConnecte()): ?>
-                            <td>
+                            <td data-label="Actions">
                                 <a href="modifier_livre.php?id=<?= (int) $livre['id'] ?>">Modifier</a>
                                 <a href="supprimer_livre.php?id=<?= (int) $livre['id'] ?>">Supprimer</a>
                             </td>

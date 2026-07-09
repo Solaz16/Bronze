@@ -246,26 +246,71 @@ td a {
 }
 
 @media (max-width: 760px) {
+    body {
+        background: white;
+    }
+
     header {
-        padding: 20px;
+        padding: 18px 14px;
     }
 
     header h1 {
-        font-size: 24px;
+        font-size: 22px;
+        margin-bottom: 12px;
     }
 
     nav {
-        display: block;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
     }
 
-    nav a,
+    nav a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 9px 8px;
+        text-align: center;
+        font-size: 14px;
+    }
+
     nav span {
-        display: block;
-        margin: 0 0 8px 0;
+        grid-column: 1 / -1;
+        margin: 4px 0 0 0;
+        text-align: center;
+        font-size: 13px;
+    }
+
+    main {
+        margin: 14px auto;
+        padding: 0 10px;
     }
 
     .bloc {
-        padding: 18px;
+        padding: 14px;
+        border-radius: 0;
+        border-left: 0;
+        border-right: 0;
+        box-shadow: none;
+    }
+
+    h2 {
+        font-size: 22px;
+        margin-bottom: 14px;
+    }
+
+    h3 {
+        font-size: 18px;
+    }
+
+    .formulaire,
+    .formulaire-recherche {
+        max-width: none;
+    }
+
+    .formulaire-recherche {
+        padding: 12px;
     }
 
     table,
@@ -281,20 +326,75 @@ td a {
         display: none;
     }
 
+    table {
+        margin-top: 14px;
+        border-radius: 0;
+    }
+
     tr {
         border: 1px solid #e1e7eb;
         border-radius: 6px;
         margin-bottom: 12px;
-        padding: 8px;
+        padding: 10px;
+        background: white;
+        box-shadow: 0 2px 8px rgba(31, 41, 51, 0.06);
     }
 
     td {
+        display: grid;
+        grid-template-columns: 110px minmax(0, 1fr);
+        gap: 10px;
+        align-items: start;
+        border-bottom: 1px solid #edf1f3;
+        padding: 9px 4px;
+        overflow-wrap: anywhere;
+    }
+
+    td:last-child {
         border-bottom: 0;
-        padding: 8px;
+    }
+
+    td::before {
+        content: attr(data-label);
+        color: #607080;
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+    td a {
+        margin: 0 8px 8px 0;
     }
 
     .ligne-formulaire,
     .grille-formulaire {
         display: block;
+    }
+
+    .ligne-formulaire button {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    button,
+    .bouton {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 8px;
+    }
+
+    .disponible,
+    .indisponible {
+        width: fit-content;
+    }
+}
+
+@media (max-width: 420px) {
+    nav {
+        grid-template-columns: 1fr;
+    }
+
+    td {
+        grid-template-columns: 1fr;
+        gap: 4px;
     }
 }

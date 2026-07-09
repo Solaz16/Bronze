@@ -193,7 +193,6 @@ button,
     display: inline-block;
     background: #d6ad60;
     color: #111318;
-    color: white;
     border: 0;
     border-radius: 6px;
     padding: 11px 15px;
@@ -636,26 +635,29 @@ td a {
     }
 
     nav {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        display: flex;
+        flex-wrap: nowrap;
         gap: 8px;
+        overflow-x: auto;
+        padding-bottom: 4px;
     }
 
     nav a {
         display: flex;
+        flex: 0 0 auto;
         align-items: center;
         justify-content: center;
-        min-height: 42px;
-        padding: 9px 8px;
+        min-height: 38px;
+        padding: 8px 10px;
         text-align: center;
         font-size: 14px;
         border-radius: 6px;
     }
 
     nav span {
-        grid-column: 1 / -1;
-        margin: 4px 0 0 0;
-        text-align: center;
+        flex: 0 0 auto;
+        margin: 0;
+        align-self: center;
         font-size: 13px;
     }
 
@@ -785,19 +787,6 @@ td a {
         display: block;
     }
 
-    .catalogue-grille {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 12px;
-    }
-
-    .carte-image .jaquette {
-        height: 215px;
-    }
-
-    .carte-actions {
-        display: block;
-    }
-
     .ligne-formulaire button,
     button,
     .bouton {
@@ -813,12 +802,129 @@ td a {
 }
 
 @media (max-width: 430px) {
-    nav {
-        grid-template-columns: 1fr;
-    }
-
     td {
         grid-template-columns: 1fr;
         gap: 4px;
+    }
+}
+
+@media (max-width: 600px) {
+    header {
+        position: static;
+        padding: 12px 10px;
+    }
+
+    header h1 {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    main {
+        margin-top: 10px;
+        padding: 0 8px;
+    }
+
+    .bloc {
+        padding: 12px;
+        border-radius: 6px;
+    }
+
+    .recommandation-blame {
+        display: grid;
+        grid-template-columns: 86px minmax(0, 1fr);
+        gap: 12px;
+        padding: 14px;
+    }
+
+    .recommandation-blame::after {
+        display: none;
+    }
+
+    .recommandation-blame img {
+        width: 86px;
+        height: 124px;
+        margin: 0;
+    }
+
+    .recommandation-blame h3 {
+        font-size: 23px;
+    }
+
+    .formulaire-recherche {
+        padding: 12px;
+        margin-bottom: 14px;
+    }
+
+    .catalogue-entete {
+        margin: 8px 0 12px 0;
+    }
+
+    .aide-js {
+        display: none;
+    }
+
+    .catalogue-grille {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .carte-livre {
+        display: grid;
+        grid-template-columns: 104px minmax(0, 1fr);
+        grid-template-areas:
+            "image contenu"
+            "actions actions";
+        min-height: 0;
+    }
+
+    .carte-image {
+        grid-area: image;
+        padding: 10px;
+    }
+
+    .carte-image .jaquette {
+        width: 84px;
+        height: 124px;
+    }
+
+    .carte-contenu {
+        grid-area: contenu;
+        padding: 10px 10px 8px 0;
+    }
+
+    .carte-contenu h3 {
+        font-size: 16px;
+        margin: 5px 0 6px 0;
+    }
+
+    .carte-contenu p {
+        font-size: 13px;
+        margin: 4px 0;
+    }
+
+    .carte-actions {
+        grid-area: actions;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 0 10px 10px 10px;
+    }
+
+    .carte-actions .bouton,
+    .carte-actions a {
+        width: auto;
+        margin-bottom: 0;
+        font-size: 14px;
+    }
+
+    .pagination a {
+        flex: 1 1 auto;
+        text-align: center;
+    }
+
+    .toast {
+        width: calc(100% - 24px);
+        text-align: center;
+        border-radius: 8px;
     }
 }

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/jaquettes.php';
 
 $pdo = connexionBDD();
 $recherche = trim($_GET['recherche'] ?? '');
@@ -121,10 +122,13 @@ include __DIR__ . '/../templates/header.php';
             </thead>
             <tbody>
                 <?php foreach ($livres as $livre): ?>
+                    <?php $jaquette = jaquetteLivre($livre['titre']); ?>
                     <tr>
                         <td data-label="Jaquette">
                             <div class="jaquette">
-                                <img src="https://covers.openlibrary.org/b/isbn/<?= htmlspecialchars($livre['isbn']) ?>-M.jpg?default=false" alt="Jaquette de <?= htmlspecialchars($livre['titre']) ?>" onerror="this.style.display='none'; this.parentNode.classList.add('jaquette-vide');">
+                                <?php if ($jaquette !== ''): ?>
+                                    <img src="<?= htmlspecialchars($jaquette) ?>" alt="Jaquette de <?= htmlspecialchars($livre['titre']) ?>" onerror="this.remove();">
+                                <?php endif; ?>
                                 <span>Pas d'image</span>
                             </div>
                         </td>

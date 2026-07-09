@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/jaquettes.php';
 
 $pdo = connexionBDD();
 $id = (int) ($_GET['id'] ?? 0);
@@ -22,10 +23,13 @@ include __DIR__ . '/../templates/header.php';
         <p>Le livre demande n'existe pas.</p>
         <a href="catalogue.php">Retour au catalogue</a>
     <?php else: ?>
+        <?php $jaquette = jaquetteLivre($livre['titre']); ?>
         <h2><?= htmlspecialchars($livre['titre']) ?></h2>
         <div class="detail-livre">
             <div class="jaquette grande-jaquette">
-                <img src="https://covers.openlibrary.org/b/isbn/<?= htmlspecialchars($livre['isbn']) ?>-L.jpg?default=false" alt="Jaquette de <?= htmlspecialchars($livre['titre']) ?>" onerror="this.style.display='none'; this.parentNode.classList.add('jaquette-vide');">
+                <?php if ($jaquette !== ''): ?>
+                    <img src="<?= htmlspecialchars($jaquette) ?>" alt="Jaquette de <?= htmlspecialchars($livre['titre']) ?>" onerror="this.remove();">
+                <?php endif; ?>
                 <span>Pas d'image</span>
             </div>
             <div>

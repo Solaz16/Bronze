@@ -100,7 +100,7 @@ include __DIR__ . '/../templates/header.php';
             <div>
                 <p class="etiquette">Recommande</p>
                 <h3>Blame!</h3>
-                <p>Le manga mis en avant de la bibliotheque : sombre, immense, cyberpunk, et franchement stylé.</p>
+                <p>Le manga mis en avant de la bibliotheque : sombre, immense, cyberpunk, et franchement style.</p>
                 <a class="bouton" href="livre.php?id=<?= (int) $blame['id'] ?>">Voir Blame!</a>
             </div>
         </div>
@@ -151,57 +151,50 @@ include __DIR__ . '/../templates/header.php';
         <p>Resultats pour : <?= htmlspecialchars($recherche) ?></p>
     <?php endif; ?>
 
-    <p><?= $total ?> resultat(s) trouve(s)</p>
+    <div class="catalogue-entete">
+        <p><?= $total ?> resultat(s) trouve(s)</p>
+        <p class="aide-js">Appuie sur / pour chercher rapidement</p>
+    </div>
 
     <?php if (count($livres) === 0): ?>
         <p>Aucun livre trouve.</p>
     <?php else: ?>
-        <table>
-            <thead>
-                <tr>
-                    <th>Jaquette</th>
-                    <th>Titre</th>
-                    <th>Auteur</th>
-                    <th>Categorie</th>
-                    <th>Disponibilite</th>
-                    <th>Detail</th>
-                    <?php if (utilisateurConnecte()): ?>
-                        <th>Actions</th>
-                    <?php endif; ?>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($livres as $livre): ?>
-                    <?php $jaquette = jaquetteLivre($livre['titre'], $livre['couverture'] ?? ''); ?>
-                    <tr class="<?= $livre['titre'] === 'Blame!' ? 'ligne-blame' : '' ?>">
-                        <td data-label="Jaquette">
-                            <div class="jaquette">
-                                <?php if ($jaquette !== ''): ?>
-                                    <img src="<?= htmlspecialchars($jaquette) ?>" alt="Jaquette de <?= htmlspecialchars($livre['titre']) ?>" onerror="this.remove();">
-                                <?php endif; ?>
-                            </div>
-                        </td>
-                        <td data-label="Titre"><?= htmlspecialchars($livre['titre']) ?></td>
-                        <td data-label="Auteur"><?= htmlspecialchars($livre['auteur']) ?></td>
-                        <td data-label="Categorie"><?= htmlspecialchars($livre['categorie'] ?? 'Non classe') ?></td>
-                        <td data-label="Disponibilite">
-                            <?php if ($livre['disponible']): ?>
-                                <span class="disponible">Disponible</span>
-                            <?php else: ?>
-                                <span class="indisponible">Indisponible</span>
+        <div class="catalogue-grille">
+            <?php foreach ($livres as $livre): ?>
+                <?php $jaquette = jaquetteLivre($livre['titre'], $livre['couverture'] ?? ''); ?>
+                <article class="carte-livre <?= $livre['titre'] === 'Blame!' ? 'carte-blame' : '' ?>">
+                    <a class="carte-image" href="livre.php?id=<?= (int) $livre['id'] ?>">
+                        <div class="jaquette">
+                            <?php if ($jaquette !== ''): ?>
+                                <img src="<?= htmlspecialchars($jaquette) ?>" alt="Jaquette de <?= htmlspecialchars($livre['titre']) ?>" onerror="this.remove();">
                             <?php endif; ?>
-                        </td>
-                        <td data-label="Detail"><a href="livre.php?id=<?= (int) $livre['id'] ?>">Voir</a></td>
-                        <?php if (utilisateurConnecte()): ?>
-                            <td data-label="Actions">
-                                <a href="modifier_livre.php?id=<?= (int) $livre['id'] ?>">Modifier</a>
-                                <a href="supprimer_livre.php?id=<?= (int) $livre['id'] ?>">Supprimer</a>
-                            </td>
+                        </div>
+                    </a>
+
+                    <div class="carte-contenu">
+                        <?php if ($livre['titre'] === 'Blame!'): ?>
+                            <span class="etiquette">Recommande</span>
                         <?php endif; ?>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                        <h3><?= htmlspecialchars($livre['titre']) ?></h3>
+                        <p><?= htmlspecialchars($livre['auteur']) ?></p>
+                        <p><?= htmlspecialchars($livre['categorie'] ?? 'Non classe') ?></p>
+                        <?php if ($livre['disponible']): ?>
+                            <span class="disponible">Disponible</span>
+                        <?php else: ?>
+                            <span class="indisponible">Indisponible</span>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="carte-actions">
+                        <a class="bouton" href="livre.php?id=<?= (int) $livre['id'] ?>">Voir</a>
+                        <?php if (utilisateurConnecte()): ?>
+                            <a href="modifier_livre.php?id=<?= (int) $livre['id'] ?>">Modifier</a>
+                            <a href="supprimer_livre.php?id=<?= (int) $livre['id'] ?>">Supprimer</a>
+                        <?php endif; ?>
+                    </div>
+                </article>
+            <?php endforeach; ?>
+        </div>
 
         <div class="pagination">
             <?php

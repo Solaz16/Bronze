@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    var blocs = document.querySelectorAll('.bloc, .recommandation-blame, tbody tr, .carte-accueil');
+    var blocs = document.querySelectorAll('.bloc, .recommandation-blame, tbody tr, .carte-accueil, .carte-livre');
 
     blocs.forEach(function (bloc, index) {
         bloc.classList.add('revele');
@@ -44,6 +44,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
         jaquette.addEventListener('mouseleave', function () {
             jaquette.classList.remove('survol');
+        });
+    });
+
+    document.querySelectorAll('.carte-livre').forEach(function (carte) {
+        carte.addEventListener('mousemove', function (event) {
+            var rectangle = carte.getBoundingClientRect();
+            var x = event.clientX - rectangle.left;
+            var y = event.clientY - rectangle.top;
+            var rotationX = ((y / rectangle.height) - 0.5) * -5;
+            var rotationY = ((x / rectangle.width) - 0.5) * 5;
+            carte.style.transform = 'translateY(-5px) rotateX(' + rotationX + 'deg) rotateY(' + rotationY + 'deg)';
+        });
+
+        carte.addEventListener('mouseleave', function () {
+            carte.style.transform = '';
         });
     });
 

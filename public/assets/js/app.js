@@ -178,4 +178,65 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 800);
         }, 9000);
     }
+
+    var konami = [
+        'ArrowUp',
+        'ArrowUp',
+        'ArrowDown',
+        'ArrowDown',
+        'ArrowLeft',
+        'ArrowRight',
+        'ArrowLeft',
+        'ArrowRight',
+        'b',
+        'a'
+    ];
+    var konamiPosition = 0;
+
+    function lancerAkuma() {
+        var ancien = document.querySelector('.akuma-easter-egg');
+
+        if (ancien) {
+            ancien.remove();
+        }
+
+        var scene = document.createElement('div');
+        scene.className = 'akuma-easter-egg';
+        scene.innerHTML = '<div class="akuma-explosion"></div><div class="akuma-logo">&#22825;</div><div class="akuma-texte">AKUMA</div>';
+
+        for (var i = 0; i < 20; i++) {
+            var fragment = document.createElement('span');
+            fragment.className = 'akuma-fragment';
+            fragment.style.setProperty('--angle', (i * 18) + 'deg');
+            fragment.style.setProperty('--distance', (90 + Math.random() * 160) + 'px');
+            scene.appendChild(fragment);
+        }
+
+        document.body.appendChild(scene);
+        document.body.classList.add('ecran-secoue');
+        afficherToast('Konami Code active');
+
+        setTimeout(function () {
+            document.body.classList.remove('ecran-secoue');
+        }, 650);
+
+        setTimeout(function () {
+            scene.remove();
+        }, 2600);
+    }
+
+    document.addEventListener('keydown', function (event) {
+        var touche = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+
+        if (touche === konami[konamiPosition]) {
+            konamiPosition++;
+        } else {
+            konamiPosition = touche === konami[0] ? 1 : 0;
+        }
+
+        if (konamiPosition === konami.length) {
+            konamiPosition = 0;
+            lancerAkuma();
+        }
+    });
 });

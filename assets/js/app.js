@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var favori = document.createElement('button');
         favori.type = 'button';
         favori.className = 'mini-favori';
-        favori.textContent = '*';
+        favori.textContent = '★';
         favori.setAttribute('aria-label', 'Favori');
         carte.appendChild(favori);
 

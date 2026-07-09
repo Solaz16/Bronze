@@ -875,7 +875,7 @@ td a {
     }
 
     .ligne-formulaire button,
-    button:not(.bouton-haut),
+    button:not(.bouton-haut):not(.mini-favori),
     .bouton:not(.bouton-haut) {
         width: 100%;
         text-align: center;
@@ -1023,6 +1023,15 @@ td a {
         border-radius: 50%;
         margin: 0;
         padding: 0;
+        text-align: center;
+    }
+
+    .mini-favori {
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        margin: 0;
+        border-radius: 50%;
         text-align: center;
     }
 

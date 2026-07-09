@@ -23,6 +23,12 @@ include __DIR__ . '/../templates/header.php';
         <a href="catalogue.php">Retour au catalogue</a>
     <?php else: ?>
         <h2><?= htmlspecialchars($livre['titre']) ?></h2>
+        <div class="detail-livre">
+            <div class="jaquette grande-jaquette">
+                <img src="https://covers.openlibrary.org/b/isbn/<?= htmlspecialchars($livre['isbn']) ?>-L.jpg?default=false" alt="Jaquette de <?= htmlspecialchars($livre['titre']) ?>" onerror="this.style.display='none'; this.parentNode.classList.add('jaquette-vide');">
+                <span>Pas d'image</span>
+            </div>
+            <div>
         <p><strong>Auteur :</strong> <?= htmlspecialchars($livre['auteur']) ?></p>
         <p><strong>ISBN :</strong> <?= htmlspecialchars($livre['isbn']) ?></p>
         <p><strong>Annee :</strong> <?= htmlspecialchars($livre['annee_publication']) ?></p>
@@ -36,6 +42,8 @@ include __DIR__ . '/../templates/header.php';
         </p>
         <h3>Resume</h3>
         <p><?= nl2br(htmlspecialchars($livre['resume'])) ?></p>
+            </div>
+        </div>
         <?php if (utilisateurConnecte()): ?>
             <p>
                 <a class="bouton" href="modifier_livre.php?id=<?= (int) $livre['id'] ?>">Modifier</a>

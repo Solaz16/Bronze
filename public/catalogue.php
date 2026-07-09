@@ -108,6 +108,7 @@ include __DIR__ . '/../templates/header.php';
         <table>
             <thead>
                 <tr>
+                    <th>Jaquette</th>
                     <th>Titre</th>
                     <th>Auteur</th>
                     <th>Categorie</th>
@@ -121,6 +122,12 @@ include __DIR__ . '/../templates/header.php';
             <tbody>
                 <?php foreach ($livres as $livre): ?>
                     <tr>
+                        <td data-label="Jaquette">
+                            <div class="jaquette">
+                                <img src="https://covers.openlibrary.org/b/isbn/<?= htmlspecialchars($livre['isbn']) ?>-M.jpg?default=false" alt="Jaquette de <?= htmlspecialchars($livre['titre']) ?>" onerror="this.style.display='none'; this.parentNode.classList.add('jaquette-vide');">
+                                <span>Pas d'image</span>
+                            </div>
+                        </td>
                         <td data-label="Titre"><?= htmlspecialchars($livre['titre']) ?></td>
                         <td data-label="Auteur"><?= htmlspecialchars($livre['auteur']) ?></td>
                         <td data-label="Categorie"><?= htmlspecialchars($livre['categorie'] ?? 'Non classe') ?></td>

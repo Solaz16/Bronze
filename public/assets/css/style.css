@@ -788,8 +788,8 @@ td a {
     }
 
     .ligne-formulaire button,
-    button,
-    .bouton {
+    button:not(.bouton-haut),
+    .bouton:not(.bouton-haut) {
         width: 100%;
         text-align: center;
         margin-bottom: 8px;
@@ -926,5 +926,16 @@ td a {
         width: calc(100% - 24px);
         text-align: center;
         border-radius: 8px;
+    }
+
+    .bouton-haut {
+        width: 44px;
+        height: 44px;
+        right: 12px;
+        bottom: 12px;
+        border-radius: 50%;
+        margin: 0;
+        padding: 0;
+        text-align: center;
     }
 }

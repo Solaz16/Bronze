@@ -8,6 +8,14 @@ $categorie_id = (int) ($_GET['categorie_id'] ?? 0);
 $disponible = $_GET['disponible'] ?? '';
 $annee_min = trim($_GET['annee_min'] ?? '');
 $annee_max = trim($_GET['annee_max'] ?? '');
+$page = (int) ($_GET['page'] ?? 1);
+$par_page = 10;
+
+if ($page < 1) {
+    $page = 1;
+}
+
+$depart = ($page - 1) * $par_page;
 $categories = $pdo->query("SELECT id, nom FROM categories ORDER BY nom")->fetchAll(PDO::FETCH_ASSOC);
 
 $conditions = [];
@@ -38,25 +46,65 @@ if ($annee_max !== '' && ctype_digit($annee_max)) {
     $parametres['annee_max'] = (int) $annee_max;
 }
 
-$sql = "SELECT livres.*, categories.nom AS categorie
-        FROM livres
+$sql_base = " FROM livres
         LEFT JOIN categories ON livres.categorie_id = categories.id";
 
 if (count($conditions) > 0) {
-    $sql .= " WHERE " . implode(" AND ", $conditions);
+    $sql_base .= " WHERE " . implode(" AND ", $conditions);
 }
 
-$sql .= " ORDER BY livres.titre";
+$sql_count = "SELECT COUNT(*)" . $sql_base;
+$requete_count = $pdo->prepare($sql_count);
+$requete_count->execute($parametres);
+$total = (int) $requete_count->fetchColumn();
+$total_pages = max(1, (int) ceil($total / $par_page));
+
+if ($page > $total_pages) {
+    $page = $total_pages;
+    $depart = ($page - 1) * $par_page;
+}
+
+$sql = "SELECT livres.*, categories.nom AS categorie" . $sql_base . " ORDER BY livres.titre LIMIT :depart, :par_page";
 
 $requete = $pdo->prepare($sql);
-$requete->execute($parametres);
+
+foreach ($parametres as $cle => $valeur) {
+    $requete->bindValue(':' . $cle, $valeur);
+}
+
+$requete->bindValue('depart', $depart, PDO::PARAM_INT);
+$requete->bindValue('par_page', $par_page, PDO::PARAM_INT);
+$requete->execute();
 $livres = $requete->fetchAll(PDO::FETCH_ASSOC);
+
+$requete_blame = $pdo->prepare("SELECT livres.*, categories.nom AS categorie
+        FROM livres
+        LEFT JOIN categories ON livres.categorie_id = categories.id
+        WHERE livres.titre = :titre
+        LIMIT 1");
+$requete_blame->execute(['titre' => 'Blame!']);
+$blame = $requete_blame->fetch(PDO::FETCH_ASSOC);
 $titre_page = 'Catalogue';
 include __DIR__ . '/../templates/header.php';
 ?>
 
 <section class="bloc">
     <h2>Catalogue</h2>
+
+    <?php if ($blame): ?>
+        <?php $jaquette_blame = jaquetteLivre($blame['titre'], $blame['couverture'] ?? ''); ?>
+        <div class="recommandation-blame">
+            <?php if ($jaquette_blame !== ''): ?>
+                <img src="<?= htmlspecialchars($jaquette_blame) ?>" alt="Jaquette de Blame!">
+            <?php endif; ?>
+            <div>
+                <p class="etiquette">Recommande</p>
+                <h3>Blame!</h3>
+                <p>Le manga mis en avant de la bibliotheque : sombre, immense, cyberpunk, et franchement stylé.</p>
+                <a class="bouton" href="livre.php?id=<?= (int) $blame['id'] ?>">Voir Blame!</a>
+            </div>
+        </div>
+    <?php endif; ?>
 
     <form method="get" class="formulaire-recherche">
         <label for="recherche">Rechercher par titre ou auteur</label>
@@ -103,6 +151,8 @@ include __DIR__ . '/../templates/header.php';
         <p>Resultats pour : <?= htmlspecialchars($recherche) ?></p>
     <?php endif; ?>
 
+    <p><?= $total ?> resultat(s) trouve(s)</p>
+
     <?php if (count($livres) === 0): ?>
         <p>Aucun livre trouve.</p>
     <?php else: ?>
@@ -122,14 +172,13 @@ include __DIR__ . '/../templates/header.php';
             </thead>
             <tbody>
                 <?php foreach ($livres as $livre): ?>
-                    <?php $jaquette = jaquetteLivre($livre['titre']); ?>
-                    <tr>
+                    <?php $jaquette = jaquetteLivre($livre['titre'], $livre['couverture'] ?? ''); ?>
+                    <tr class="<?= $livre['titre'] === 'Blame!' ? 'ligne-blame' : '' ?>">
                         <td data-label="Jaquette">
                             <div class="jaquette">
                                 <?php if ($jaquette !== ''): ?>
                                     <img src="<?= htmlspecialchars($jaquette) ?>" alt="Jaquette de <?= htmlspecialchars($livre['titre']) ?>" onerror="this.remove();">
                                 <?php endif; ?>
-                                <span>Pas d'image</span>
                             </div>
                         </td>
                         <td data-label="Titre"><?= htmlspecialchars($livre['titre']) ?></td>
@@ -153,6 +202,26 @@ include __DIR__ . '/../templates/header.php';
                 <?php endforeach; ?>
             </tbody>
         </table>
+
+        <div class="pagination">
+            <?php
+            $params = $_GET;
+            unset($params['page']);
+            $base_pagination = http_build_query($params);
+            $prefixe = $base_pagination === '' ? '?' : '?' . $base_pagination . '&';
+            ?>
+            <?php if ($page > 1): ?>
+                <a href="<?= $prefixe ?>page=<?= $page - 1 ?>">Precedent</a>
+            <?php endif; ?>
+
+            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                <a class="<?= $i === $page ? 'page-active' : '' ?>" href="<?= $prefixe ?>page=<?= $i ?>"><?= $i ?></a>
+            <?php endfor; ?>
+
+            <?php if ($page < $total_pages): ?>
+                <a href="<?= $prefixe ?>page=<?= $page + 1 ?>">Suivant</a>
+            <?php endif; ?>
+        </div>
     <?php endif; ?>
 </section>
 

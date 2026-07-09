@@ -5,6 +5,9 @@
         <a href="ajouter.php">Ajouter un livre</a>
         <a href="utilisateurs.php">Utilisateurs</a>
         <a href="emprunts.php">Emprunts</a>
+        <a href="reservations.php">Reservations</a>
+        <a href="retards.php">Retards</a>
+        <a href="dashboard.php">Stats</a>
         <span>Connecte : <?= htmlspecialchars(nomUtilisateur()) ?></span>
         <a href="logout.php">Deconnexion</a>
     <?php else: ?>

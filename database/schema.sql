@@ -3,6 +3,7 @@ CREATE DATABASE IF NOT EXISTS bibliotheque_tp5 CHARACTER SET utf8mb4 COLLATE utf
 USE bibliotheque_tp5;
 
 DROP TABLE IF EXISTS emprunts;
+DROP TABLE IF EXISTS reservations;
 DROP TABLE IF EXISTS utilisateurs;
 DROP TABLE IF EXISTS livres;
 DROP TABLE IF EXISTS categories;
@@ -21,6 +22,7 @@ CREATE TABLE livres (
     resume TEXT,
     categorie_id INT,
     disponible TINYINT(1) NOT NULL DEFAULT 1,
+    couverture VARCHAR(255) NULL,
     FOREIGN KEY (categorie_id) REFERENCES categories(id)
 );
 
@@ -40,6 +42,16 @@ CREATE TABLE emprunts (
     date_retour_prevue DATE NOT NULL,
     date_retour_effective DATE NULL,
     statut VARCHAR(30) NOT NULL DEFAULT 'en_cours',
+    FOREIGN KEY (livre_id) REFERENCES livres(id),
+    FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id)
+);
+
+CREATE TABLE reservations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    livre_id INT NOT NULL,
+    utilisateur_id INT NOT NULL,
+    date_reservation DATE NOT NULL,
+    statut VARCHAR(30) NOT NULL DEFAULT 'en_attente',
     FOREIGN KEY (livre_id) REFERENCES livres(id),
     FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id)
 );

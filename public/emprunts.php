@@ -33,6 +33,7 @@ include __DIR__ . '/../templates/header.php';
                     <th>Date emprunt</th>
                     <th>Retour prevu</th>
                     <th>Statut</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -49,6 +50,7 @@ include __DIR__ . '/../templates/header.php';
                                 <span class="disponible">En cours</span>
                             <?php endif; ?>
                         </td>
+                        <td data-label="Action"><a href="retour_emprunt.php?id=<?= (int) $emprunt['id'] ?>">Retourner</a></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>

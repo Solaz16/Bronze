@@ -35,6 +35,7 @@ $annee = $livre['annee_publication'];
 $resume = $livre['resume'];
 $categorie_id = $livre['categorie_id'];
 $disponible = $livre['disponible'];
+$couverture = $livre['couverture'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $titre = trim($_POST['titre'] ?? '');
@@ -44,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $resume = trim($_POST['resume'] ?? '');
     $categorie_id = (int) ($_POST['categorie_id'] ?? 0);
     $disponible = (int) ($_POST['disponible'] ?? 0);
+    $couverture = $_POST['couverture_actuelle'] ?? '';
 
     if ($titre === '') {
         $erreurs[] = 'Le titre est obligatoire.';
@@ -65,11 +67,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erreurs[] = "L'annee doit etre un nombre valide.";
     }
 
+    if (isset($_FILES['couverture']) && $_FILES['couverture']['error'] !== UPLOAD_ERR_NO_FILE) {
+        if ($_FILES['couverture']['error'] !== UPLOAD_ERR_OK) {
+            $erreurs[] = "La couverture n'a pas pu etre envoyee.";
+        } elseif ($_FILES['couverture']['size'] > 2000000) {
+            $erreurs[] = 'La couverture est trop lourde.';
+        } else {
+            $types = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+            $type = mime_content_type($_FILES['couverture']['tmp_name']);
+
+            if (!isset($types[$type])) {
+                $erreurs[] = 'La couverture doit etre en jpg, png ou webp.';
+            } else {
+                $dossier = __DIR__ . '/../uploads/couvertures';
+
+                if (!is_dir($dossier)) {
+                    mkdir($dossier, 0777, true);
+                }
+
+                $nom_fichier = uniqid('couverture_', true) . '.' . $types[$type];
+                $destination = $dossier . '/' . $nom_fichier;
+
+                if (move_uploaded_file($_FILES['couverture']['tmp_name'], $destination)) {
+                    $couverture = '../uploads/couvertures/' . $nom_fichier;
+                } else {
+                    $erreurs[] = "La couverture n'a pas pu etre enregistree.";
+                }
+            }
+        }
+    }
+
     if (count($erreurs) === 0) {
         try {
             $sql = "UPDATE livres
                     SET titre = :titre, auteur = :auteur, isbn = :isbn, annee_publication = :annee_publication,
-                        resume = :resume, categorie_id = :categorie_id, disponible = :disponible
+                        resume = :resume, categorie_id = :categorie_id, disponible = :disponible, couverture = :couverture
                     WHERE id = :id";
             $requete = $pdo->prepare($sql);
             $requete->execute([
@@ -80,6 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'resume' => $resume,
                 'categorie_id' => $categorie_id,
                 'disponible' => $disponible,
+                'couverture' => $couverture,
                 'id' => $id
             ]);
             $message = 'Le livre a bien ete modifie.';
@@ -112,7 +145,8 @@ include __DIR__ . '/../templates/header.php';
         </div>
     <?php endif; ?>
 
-    <form method="post" class="formulaire">
+    <form method="post" class="formulaire" enctype="multipart/form-data">
+        <input type="hidden" name="couverture_actuelle" value="<?= htmlspecialchars($couverture) ?>">
         <label for="titre">Titre</label>
         <input type="text" id="titre" name="titre" value="<?= htmlspecialchars($titre) ?>">
 
@@ -142,6 +176,9 @@ include __DIR__ . '/../templates/header.php';
 
         <label for="resume">Resume</label>
         <textarea id="resume" name="resume" rows="5"><?= htmlspecialchars($resume) ?></textarea>
+
+        <label for="couverture">Couverture</label>
+        <input type="file" id="couverture" name="couverture" accept="image/jpeg,image/png,image/webp">
 
         <button type="submit">Enregistrer</button>
     </form>

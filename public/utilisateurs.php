@@ -109,6 +109,7 @@ include __DIR__ . '/../templates/header.php';
                     </td>
                     <td data-label="Actions">
                         <a href="modifier_utilisateur.php?id=<?= (int) $utilisateur['id'] ?>">Modifier</a>
+                        <a href="historique_utilisateur.php?id=<?= (int) $utilisateur['id'] ?>">Historique</a>
                         <?php if ($utilisateur['actif']): ?>
                             <a href="desactiver_utilisateur.php?id=<?= (int) $utilisateur['id'] ?>">Desactiver</a>
                         <?php endif; ?>

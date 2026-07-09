@@ -1,7 +1,11 @@
 <?php
 
-function jaquetteLivre($titre)
+function jaquetteLivre($titre, $couverture = '')
 {
+    if ($couverture !== '') {
+        return $couverture;
+    }
+
     $jaquettes = [
         'Blame!' => 'https://cdn.myanimelist.net/images/manga/1/174389.jpg',
         'Berserk' => 'https://cdn.myanimelist.net/images/manga/1/157897.jpg',

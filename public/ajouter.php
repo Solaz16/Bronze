@@ -16,6 +16,7 @@ $isbn = '';
 $annee = '';
 $resume = '';
 $categorie_id = '';
+$couverture = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $titre = trim($_POST['titre'] ?? '');
@@ -45,10 +46,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erreurs[] = "L'annee doit etre un nombre valide.";
     }
 
+    if (isset($_FILES['couverture']) && $_FILES['couverture']['error'] !== UPLOAD_ERR_NO_FILE) {
+        if ($_FILES['couverture']['error'] !== UPLOAD_ERR_OK) {
+            $erreurs[] = "La couverture n'a pas pu etre envoyee.";
+        } elseif ($_FILES['couverture']['size'] > 2000000) {
+            $erreurs[] = 'La couverture est trop lourde.';
+        } else {
+            $types = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+            $type = mime_content_type($_FILES['couverture']['tmp_name']);
+
+            if (!isset($types[$type])) {
+                $erreurs[] = 'La couverture doit etre en jpg, png ou webp.';
+            } else {
+                $dossier = __DIR__ . '/../uploads/couvertures';
+
+                if (!is_dir($dossier)) {
+                    mkdir($dossier, 0777, true);
+                }
+
+                $nom_fichier = uniqid('couverture_', true) . '.' . $types[$type];
+                $destination = $dossier . '/' . $nom_fichier;
+
+                if (move_uploaded_file($_FILES['couverture']['tmp_name'], $destination)) {
+                    $couverture = '../uploads/couvertures/' . $nom_fichier;
+                } else {
+                    $erreurs[] = "La couverture n'a pas pu etre enregistree.";
+                }
+            }
+        }
+    }
+
     if (count($erreurs) === 0) {
         try {
-            $sql = "INSERT INTO livres (titre, auteur, isbn, annee_publication, resume, categorie_id, disponible)
-                    VALUES (:titre, :auteur, :isbn, :annee_publication, :resume, :categorie_id, 1)";
+            $sql = "INSERT INTO livres (titre, auteur, isbn, annee_publication, resume, categorie_id, disponible, couverture)
+                    VALUES (:titre, :auteur, :isbn, :annee_publication, :resume, :categorie_id, 1, :couverture)";
             $requete = $pdo->prepare($sql);
             $requete->execute([
                 'titre' => $titre,
@@ -56,7 +87,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'isbn' => $isbn,
                 'annee_publication' => $annee === '' ? null : (int) $annee,
                 'resume' => $resume,
-                'categorie_id' => $categorie_id
+                'categorie_id' => $categorie_id,
+                'couverture' => $couverture
             ]);
 
             $message = 'Le livre a bien ete ajoute.';
@@ -66,6 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $annee = '';
             $resume = '';
             $categorie_id = '';
+            $couverture = '';
         } catch (PDOException $e) {
             if ($e->getCode() === '23000') {
                 $erreurs[] = 'Cet ISBN existe deja.';
@@ -95,7 +128,7 @@ include __DIR__ . '/../templates/header.php';
         </div>
     <?php endif; ?>
 
-    <form method="post" class="formulaire">
+    <form method="post" class="formulaire" enctype="multipart/form-data">
         <label for="titre">Titre</label>
         <input type="text" id="titre" name="titre" value="<?= htmlspecialchars($titre) ?>">
 
@@ -120,6 +153,9 @@ include __DIR__ . '/../templates/header.php';
 
         <label for="resume">Resume</label>
         <textarea id="resume" name="resume" rows="5"><?= htmlspecialchars($resume) ?></textarea>
+
+        <label for="couverture">Couverture</label>
+        <input type="file" id="couverture" name="couverture" accept="image/jpeg,image/png,image/webp">
 
         <button type="submit">Ajouter</button>
     </form>

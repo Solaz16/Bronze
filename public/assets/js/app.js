@@ -15,6 +15,20 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 2200);
     }
 
+    for (var i = 0; i < 18; i++) {
+        var particule = document.createElement('span');
+        particule.className = 'particule';
+        particule.style.left = Math.floor(Math.random() * 100) + '%';
+        particule.style.animationDelay = (Math.random() * 9) + 's';
+        particule.style.animationDuration = (7 + Math.random() * 8) + 's';
+        document.body.appendChild(particule);
+    }
+
+    document.addEventListener('mousemove', function (event) {
+        document.body.style.setProperty('--souris-x', event.clientX + 'px');
+        document.body.style.setProperty('--souris-y', event.clientY + 'px');
+    });
+
     var chemin = window.location.pathname.split('/').pop() || 'index.php';
     document.querySelectorAll('nav a').forEach(function (lien) {
         if (lien.getAttribute('href') === chemin) {
@@ -48,6 +62,29 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.querySelectorAll('.carte-livre').forEach(function (carte) {
+        var titre = carte.querySelector('h3') ? carte.querySelector('h3').textContent.trim() : '';
+        var favori = document.createElement('button');
+        favori.type = 'button';
+        favori.className = 'mini-favori';
+        favori.textContent = '*';
+        favori.setAttribute('aria-label', 'Favori');
+        carte.appendChild(favori);
+
+        if (localStorage.getItem('favori_' + titre) === '1') {
+            carte.classList.add('favori');
+            favori.classList.add('actif');
+        }
+
+        favori.addEventListener('click', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            var actif = !carte.classList.contains('favori');
+            carte.classList.toggle('favori', actif);
+            favori.classList.toggle('actif', actif);
+            localStorage.setItem('favori_' + titre, actif ? '1' : '0');
+            afficherToast(actif ? titre + ' ajoute aux favoris' : titre + ' retire des favoris');
+        });
+
         carte.addEventListener('mousemove', function (event) {
             var rectangle = carte.getBoundingClientRect();
             var x = event.clientX - rectangle.left;
@@ -63,6 +100,35 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     var recherche = document.querySelector('#recherche');
+    var cartes = document.querySelectorAll('.carte-livre');
+    var compteur = document.querySelector('.catalogue-entete p');
+
+    function filtrerCartes() {
+        if (!recherche || cartes.length === 0) {
+            return;
+        }
+
+        var texte = recherche.value.toLowerCase().trim();
+        var visibles = 0;
+
+        cartes.forEach(function (carte) {
+            var contenu = carte.textContent.toLowerCase();
+            var visible = contenu.indexOf(texte) !== -1;
+            carte.classList.toggle('cachee', !visible);
+
+            if (visible) {
+                visibles++;
+            }
+        });
+
+        if (compteur) {
+            compteur.textContent = visibles + ' manga(s) affiches';
+        }
+    }
+
+    if (recherche && cartes.length > 0) {
+        recherche.addEventListener('input', filtrerCartes);
+    }
 
     document.addEventListener('keydown', function (event) {
         if (event.key === '/' && recherche && document.activeElement !== recherche) {
@@ -100,5 +166,16 @@ document.addEventListener('DOMContentLoaded', function () {
         setTimeout(function () {
             afficherToast('Blame! est recommande');
         }, 700);
+    }
+
+    var blame = document.querySelector('.carte-blame');
+
+    if (blame) {
+        setInterval(function () {
+            blame.classList.add('pulse-js');
+            setTimeout(function () {
+                blame.classList.remove('pulse-js');
+            }, 800);
+        }, 9000);
     }
 });

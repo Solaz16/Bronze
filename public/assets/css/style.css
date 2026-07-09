@@ -11,6 +11,17 @@ body {
     font-family: Arial, Helvetica, sans-serif;
     background: #0f1115;
     color: #d8dee9;
+    --souris-x: 50%;
+    --souris-y: 20%;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at var(--souris-x) var(--souris-y), rgba(214, 173, 96, 0.12), transparent 240px);
+    z-index: -1;
 }
 
 .barre-scroll {
@@ -436,6 +447,7 @@ td a {
 }
 
 .carte-livre {
+    position: relative;
     background: #10141c;
     border: 1px solid rgba(216, 222, 233, 0.11);
     border-radius: 8px;
@@ -444,6 +456,36 @@ td a {
     display: flex;
     flex-direction: column;
     transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.carte-livre.cachee {
+    display: none;
+}
+
+.carte-livre.favori {
+    border-color: rgba(214, 173, 96, 0.9);
+    box-shadow: 0 0 0 1px rgba(214, 173, 96, 0.18), 0 22px 42px rgba(0, 0, 0, 0.35);
+}
+
+.mini-favori {
+    position: absolute;
+    top: 9px;
+    right: 9px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    padding: 0;
+    margin: 0;
+    z-index: 4;
+    background: rgba(15, 17, 21, 0.82);
+    color: #d6ad60;
+    border: 1px solid rgba(214, 173, 96, 0.35);
+    box-shadow: none;
+}
+
+.mini-favori.actif {
+    background: #d6ad60;
+    color: #111318;
 }
 
 .carte-livre:hover {
@@ -529,6 +571,51 @@ td a {
 .toast.visible {
     opacity: 1;
     transform: translate(-50%, 0);
+}
+
+.particule {
+    position: fixed;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: rgba(214, 173, 96, 0.5);
+    pointer-events: none;
+    z-index: -1;
+    animation: flotte 9s linear infinite;
+}
+
+@keyframes flotte {
+    from {
+        transform: translateY(110vh);
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 0.7;
+    }
+
+    to {
+        transform: translateY(-20vh);
+        opacity: 0;
+    }
+}
+
+.pulse-js {
+    animation: pulseCarte 0.7s ease;
+}
+
+@keyframes pulseCarte {
+    0% {
+        transform: scale(1);
+    }
+
+    45% {
+        transform: scale(1.03);
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 
 .bouton-haut {
@@ -937,5 +1024,9 @@ td a {
         margin: 0;
         padding: 0;
         text-align: center;
+    }
+
+    .particule {
+        display: none;
     }
 }

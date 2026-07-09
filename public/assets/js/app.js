@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
+    var pageEntry = document.body.classList.contains('page-entry');
     var barre = document.createElement('div');
     barre.className = 'barre-scroll';
     document.body.appendChild(barre);
@@ -13,6 +14,30 @@ document.addEventListener('DOMContentLoaded', function () {
         setTimeout(function () {
             toast.classList.remove('visible');
         }, 2200);
+    }
+
+    if (pageEntry) {
+        var entryAudio = document.querySelector('#entryAudio');
+        var entryStart = document.querySelector('#entryStart');
+
+        function jouerEntry() {
+            if (!entryAudio) {
+                return;
+            }
+
+            entryAudio.volume = 0.9;
+            entryAudio.play().catch(function () {
+                if (entryStart) {
+                    entryStart.classList.add('visible');
+                }
+            });
+        }
+
+        if (entryStart) {
+            entryStart.addEventListener('click', jouerEntry);
+        }
+
+        setTimeout(jouerEntry, 450);
     }
 
     for (var i = 0; i < 18; i++) {
@@ -66,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var favori = document.createElement('button');
         favori.type = 'button';
         favori.className = 'mini-favori';
-        favori.textContent = '★';
+        favori.textContent = '\u2605';
         favori.setAttribute('aria-label', 'Favori');
         carte.appendChild(favori);
 
@@ -161,6 +186,70 @@ document.addEventListener('DOMContentLoaded', function () {
             bouton.classList.remove('visible');
         }
     });
+
+    var tentativesBas = 0;
+    var dernierBas = 0;
+
+    function estEnBas() {
+        return window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+    }
+
+    function ouvrirEntrySeventeen() {
+        if (pageEntry) {
+            return;
+        }
+
+        sessionStorage.setItem('entry_seventeen', '1');
+        window.location.href = 'entry_seventeen.php';
+    }
+
+    window.addEventListener('wheel', function (event) {
+        if (pageEntry || event.deltaY <= 0 || !estEnBas()) {
+            return;
+        }
+
+        var maintenant = Date.now();
+
+        if (maintenant - dernierBas > 1400) {
+            tentativesBas = 0;
+        }
+
+        dernierBas = maintenant;
+        tentativesBas++;
+
+        if (tentativesBas === 3) {
+            afficherToast('...');
+        }
+
+        if (tentativesBas >= 5) {
+            ouvrirEntrySeventeen();
+        }
+    }, { passive: true });
+
+    var dernierTouchY = 0;
+
+    window.addEventListener('touchstart', function (event) {
+        if (event.touches.length > 0) {
+            dernierTouchY = event.touches[0].clientY;
+        }
+    }, { passive: true });
+
+    window.addEventListener('touchmove', function (event) {
+        if (pageEntry || event.touches.length === 0 || !estEnBas()) {
+            return;
+        }
+
+        var y = event.touches[0].clientY;
+
+        if (dernierTouchY - y > 18) {
+            tentativesBas++;
+            dernierTouchY = y;
+        }
+
+        if (tentativesBas >= 5) {
+            ouvrirEntrySeventeen();
+        }
+    }, { passive: true });
 
     if (document.querySelector('.recommandation-blame')) {
         setTimeout(function () {

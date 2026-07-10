@@ -157,6 +157,46 @@ document.addEventListener('DOMContentLoaded', function () {
         recherche.addEventListener('input', filtrerCartes);
     }
 
+    var boutonSynopsis = document.querySelector('[data-synopsis]');
+    var champTitre = document.querySelector('#titre');
+    var champResume = document.querySelector('#resume');
+
+    if (boutonSynopsis && champTitre && champResume) {
+        boutonSynopsis.addEventListener('click', function () {
+            var titre = champTitre.value.trim();
+
+            if (titre === '') {
+                afficherToast('Mets un titre avant');
+                champTitre.focus();
+                return;
+            }
+
+            boutonSynopsis.disabled = true;
+            boutonSynopsis.textContent = 'Recherche...';
+
+            fetch('synopsis.php?titre=' + encodeURIComponent(titre))
+                .then(function (reponse) {
+                    return reponse.json();
+                })
+                .then(function (data) {
+                    if (!data.ok) {
+                        afficherToast(data.message || 'Rien trouve');
+                        return;
+                    }
+
+                    champResume.value = data.synopsis;
+                    afficherToast('Synopsis trouve');
+                })
+                .catch(function () {
+                    afficherToast('Recherche impossible');
+                })
+                .finally(function () {
+                    boutonSynopsis.disabled = false;
+                    boutonSynopsis.textContent = 'Remplir le resume';
+                });
+        });
+    }
+
     document.addEventListener('keydown', function (event) {
         if (event.key === '/' && recherche && document.activeElement !== recherche) {
             event.preventDefault();

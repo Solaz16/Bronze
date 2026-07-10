@@ -910,6 +910,10 @@ td a {
     max-width: 760px;
 }
 
+.bouton-synopsis {
+    margin: -3px 0 18px 0;
+}
+
 .formulaire-recherche {
     background: rgba(15, 23, 42, 0.82);
     border: 1px solid rgba(148, 163, 184, 0.16);

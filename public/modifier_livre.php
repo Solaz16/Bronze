@@ -176,6 +176,7 @@ include __DIR__ . '/../templates/header.php';
 
         <label for="resume">Resume</label>
         <textarea id="resume" name="resume" rows="5"><?= htmlspecialchars($resume) ?></textarea>
+        <button class="bouton-synopsis" type="button" data-synopsis>Remplir le resume</button>
 
         <label for="couverture">Couverture</label>
         <input type="file" id="couverture" name="couverture" accept="image/jpeg,image/png,image/webp">

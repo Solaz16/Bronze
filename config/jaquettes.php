@@ -3,7 +3,7 @@
 function jaquetteLivre($titre, $couverture = '')
 {
     if ($couverture !== '') {
-        return $couverture;
+        return str_replace('../uploads/', 'uploads/', $couverture);
     }
 
     $jaquettes = [

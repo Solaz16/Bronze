@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!isset($types[$type])) {
                 $erreurs[] = 'La couverture doit etre en jpg, png ou webp.';
             } else {
-                $dossier = __DIR__ . '/../uploads/couvertures';
+                $dossier = __DIR__ . '/uploads/couvertures';
 
                 if (!is_dir($dossier)) {
                     mkdir($dossier, 0777, true);
@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $destination = $dossier . '/' . $nom_fichier;
 
                 if (move_uploaded_file($_FILES['couverture']['tmp_name'], $destination)) {
-                    $couverture = '../uploads/couvertures/' . $nom_fichier;
+                    $couverture = 'uploads/couvertures/' . $nom_fichier;
                 } else {
                     $erreurs[] = "La couverture n'a pas pu etre enregistree.";
                 }

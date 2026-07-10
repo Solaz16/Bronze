@@ -229,14 +229,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    var tentativesBas = 0;
-    var dernierBas = 0;
-    var seuilEntry = 12;
-
-    function estEnBas() {
-        return window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
-    }
-
     function ouvrirEntrySeventeen() {
         if (pageEntry) {
             return;
@@ -245,58 +237,6 @@ document.addEventListener('DOMContentLoaded', function () {
         sessionStorage.setItem('entry_seventeen', '1');
         window.location.href = 'entry_seventeen.php';
     }
-
-    window.addEventListener('wheel', function (event) {
-        if (pageEntry || event.deltaY <= 0 || !estEnBas()) {
-            return;
-        }
-
-        var maintenant = Date.now();
-
-        if (maintenant - dernierBas > 4200) {
-            tentativesBas = 0;
-        }
-
-        dernierBas = maintenant;
-        tentativesBas++;
-
-        if (tentativesBas === 7) {
-            afficherToast('...');
-        }
-
-        if (tentativesBas >= seuilEntry) {
-            ouvrirEntrySeventeen();
-        }
-    }, { passive: true });
-
-    var dernierTouchY = 0;
-
-    window.addEventListener('touchstart', function (event) {
-        if (event.touches.length > 0) {
-            dernierTouchY = event.touches[0].clientY;
-        }
-    }, { passive: true });
-
-    window.addEventListener('touchmove', function (event) {
-        if (pageEntry || event.touches.length === 0 || !estEnBas()) {
-            return;
-        }
-
-        var y = event.touches[0].clientY;
-
-        if (dernierTouchY - y > 26) {
-            tentativesBas++;
-            dernierTouchY = y;
-        }
-
-        if (tentativesBas === 7) {
-            afficherToast('...');
-        }
-
-        if (tentativesBas >= seuilEntry) {
-            ouvrirEntrySeventeen();
-        }
-    }, { passive: true });
 
     if (document.querySelector('.recommandation-blame')) {
         setTimeout(function () {
@@ -328,6 +268,8 @@ document.addEventListener('DOMContentLoaded', function () {
         'a'
     ];
     var konamiPosition = 0;
+    var motGaster = 'gaster';
+    var positionGaster = 0;
 
     function lancerAkuma() {
         var ancien = document.querySelector('.akuma-easter-egg');
@@ -363,6 +305,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.addEventListener('keydown', function (event) {
         var touche = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+        var balise = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+        var dansFormulaire = balise === 'input' || balise === 'textarea' || balise === 'select';
+
+        if (!dansFormulaire && touche.length === 1) {
+            if (touche === motGaster[positionGaster]) {
+                positionGaster++;
+            } else {
+                positionGaster = touche === motGaster[0] ? 1 : 0;
+            }
+
+            if (positionGaster === motGaster.length) {
+                positionGaster = 0;
+                afficherToast('...');
+                setTimeout(ouvrirEntrySeventeen, 450);
+            }
+        }
 
         if (touche === konami[konamiPosition]) {
             konamiPosition++;

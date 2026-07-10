@@ -24,6 +24,21 @@ body::before {
     z-index: -1;
 }
 
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.035) 50%, rgba(0, 0, 0, 0.09) 50%),
+        radial-gradient(circle at center, transparent 48%, rgba(0, 0, 0, 0.24) 100%);
+    background-size: 100% 4px, 100% 100%;
+    opacity: 0.28;
+    mix-blend-mode: soft-light;
+    z-index: 90;
+    animation: crtFlicker 2.8s infinite;
+}
+
 .barre-scroll {
     position: fixed;
     top: 0;
@@ -32,6 +47,24 @@ body::before {
     width: 0;
     background: linear-gradient(90deg, #4f9d8f, #74c0fc);
     z-index: 100;
+}
+
+@keyframes crtFlicker {
+    0%, 100% {
+        opacity: 0.22;
+    }
+
+    48% {
+        opacity: 0.3;
+    }
+
+    50% {
+        opacity: 0.17;
+    }
+
+    52% {
+        opacity: 0.34;
+    }
 }
 
 header {
@@ -689,6 +722,17 @@ td a {
 
 .page-entry::before {
     display: none;
+}
+
+.page-entry::after {
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.08) 50%, rgba(0, 0, 0, 0.32) 50%),
+        radial-gradient(circle at center, transparent 30%, rgba(0, 0, 0, 0.75) 100%);
+    background-size: 100% 3px, 100% 100%;
+    opacity: 0.58;
+    mix-blend-mode: screen;
+    z-index: 120;
+    animation: crtFlicker 0.9s infinite;
 }
 
 .entry-wrap {

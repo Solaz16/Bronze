@@ -711,7 +711,7 @@ td a {
     max-width: 620px;
     padding: 28px;
     text-transform: lowercase;
-    font-family: Georgia, serif;
+    font-family: Wingdings, Webdings, "Zapf Dingbats", Georgia, serif;
     letter-spacing: 1px;
     animation: entryGlitch 2.2s infinite;
 }

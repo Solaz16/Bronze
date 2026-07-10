@@ -10,7 +10,7 @@ $titre_page = 'ENTRY NUMBER SEVENTEEN';
     <link rel="stylesheet" href="assets/css/style.css?v=<?= filemtime(__DIR__ . '/assets/css/style.css') ?>">
 </head>
 <body class="page-entry">
-    <audio id="entryAudio" src="assets/audio/entry_seventeen.mp3" preload="auto"></audio>
+    <audio id="entryAudio" src="assets/audio/entry_seventeen.mp3" preload="auto" autoplay loop></audio>
 
     <main class="entry-wrap">
         <section class="entry-box">

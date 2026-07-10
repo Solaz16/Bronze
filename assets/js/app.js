@@ -25,7 +25,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
+            entryAudio.loop = true;
             entryAudio.volume = 0.9;
+            entryAudio.muted = false;
             entryAudio.play().catch(function () {
                 if (entryStart) {
                     entryStart.classList.add('visible');

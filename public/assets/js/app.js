@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
 
                     champResume.value = data.synopsis;
-                    afficherToast('Synopsis trouve');
+                    afficherToast('Synopsis trouve en francais');
                 })
                 .catch(function () {
                     afficherToast('Recherche impossible');

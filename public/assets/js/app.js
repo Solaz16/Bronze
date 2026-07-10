@@ -191,6 +191,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var tentativesBas = 0;
     var dernierBas = 0;
+    var seuilEntry = 12;
 
     function estEnBas() {
         return window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
@@ -212,18 +213,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
         var maintenant = Date.now();
 
-        if (maintenant - dernierBas > 1400) {
+        if (maintenant - dernierBas > 4200) {
             tentativesBas = 0;
         }
 
         dernierBas = maintenant;
         tentativesBas++;
 
-        if (tentativesBas === 3) {
+        if (tentativesBas === 7) {
             afficherToast('...');
         }
 
-        if (tentativesBas >= 5) {
+        if (tentativesBas >= seuilEntry) {
             ouvrirEntrySeventeen();
         }
     }, { passive: true });
@@ -243,12 +244,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
         var y = event.touches[0].clientY;
 
-        if (dernierTouchY - y > 18) {
+        if (dernierTouchY - y > 26) {
             tentativesBas++;
             dernierTouchY = y;
         }
 
-        if (tentativesBas >= 5) {
+        if (tentativesBas === 7) {
+            afficherToast('...');
+        }
+
+        if (tentativesBas >= seuilEntry) {
             ouvrirEntrySeventeen();
         }
     }, { passive: true });

@@ -1,13 +1,11 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
-
-$titre = trim($_GET['titre'] ?? '');
+require_once __DIR__ . '/../config/database.php';
 
 function appelApi($url)
 {
     $contexte = stream_context_create([
         'http' => [
-            'timeout' => 10,
+            'timeout' => 12,
             'header' => "User-Agent: BibliothequeTP5/1.0\r\n"
         ]
     ]);
@@ -15,22 +13,24 @@ function appelApi($url)
     return @file_get_contents($url, false, $contexte);
 }
 
-function nettoyerSynopsis($texte)
+function nettoyerTexte($texte)
 {
     $texte = preg_replace('/\s*\[Written by MAL Rewrite\]\s*/', '', $texte);
     $texte = preg_replace('/\s*\(Source:.*?\)\s*/', '', $texte);
+    $texte = str_replace(["\r", "\n"], ' ', $texte);
+    $texte = preg_replace('/\s+/', ' ', $texte);
     return trim($texte);
 }
 
-function couperTexte($texte)
+function morceaux($texte)
 {
     $phrases = preg_split('/(?<=[.!?])\s+/', $texte);
-    $morceaux = [];
+    $liste = [];
     $bloc = '';
 
     foreach ($phrases as $phrase) {
         if (strlen($bloc . ' ' . $phrase) > 450 && $bloc !== '') {
-            $morceaux[] = trim($bloc);
+            $liste[] = trim($bloc);
             $bloc = '';
         }
 
@@ -38,16 +38,16 @@ function couperTexte($texte)
     }
 
     if (trim($bloc) !== '') {
-        $morceaux[] = trim($bloc);
+        $liste[] = trim($bloc);
     }
 
-    return $morceaux;
+    return $liste;
 }
 
-function traduireEnFrancais($texte)
+function traduire($texte)
 {
-    $google = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=fr&dt=t&q=' . rawurlencode($texte);
-    $reponseGoogle = appelApi($google);
+    $urlGoogle = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=fr&dt=t&q=' . rawurlencode($texte);
+    $reponseGoogle = appelApi($urlGoogle);
 
     if ($reponseGoogle !== false) {
         $dataGoogle = json_decode($reponseGoogle, true);
@@ -59,13 +59,13 @@ function traduireEnFrancais($texte)
         }
 
         if (trim($resultatGoogle) !== '') {
-            return nettoyerSynopsis(html_entity_decode($resultatGoogle, ENT_QUOTES, 'UTF-8'));
+            return nettoyerTexte(html_entity_decode($resultatGoogle, ENT_QUOTES, 'UTF-8'));
         }
     }
 
-    $traductions = [];
+    $resultat = [];
 
-    foreach (couperTexte($texte) as $morceau) {
+    foreach (morceaux($texte) as $morceau) {
         $url = 'https://api.mymemory.translated.net/get?q=' . rawurlencode($morceau) . '&langpair=en|fr';
         $reponse = appelApi($url);
 
@@ -80,12 +80,34 @@ function traduireEnFrancais($texte)
             return $texte;
         }
 
-        $traductions[] = html_entity_decode($traduit, ENT_QUOTES, 'UTF-8');
+        $resultat[] = html_entity_decode($traduit, ENT_QUOTES, 'UTF-8');
     }
 
-    return trim(implode(' ', $traductions));
+    return nettoyerTexte(implode(' ', $resultat));
 }
 
+function trouverSynopsis($titre)
+{
+    $url = 'https://api.jikan.moe/v4/manga?q=' . urlencode($titre) . '&limit=1';
+    $reponse = appelApi($url);
+
+    if ($reponse === false) {
+        return '';
+    }
+
+    $data = json_decode($reponse, true);
+    $synopsis = nettoyerTexte($data['data'][0]['synopsis'] ?? '');
+
+    if ($synopsis === '') {
+        return '';
+    }
+
+    return traduire($synopsis);
+}
+
+$pdo = connexionBDD();
+$livres = $pdo->query("SELECT id, titre FROM livres ORDER BY id")->fetchAll(PDO::FETCH_ASSOC);
+$requete = $pdo->prepare("UPDATE livres SET resume = :resume WHERE id = :id");
 $resumesConnus = [
     'Innocent' => "Dans la France du XVIIIe siecle, Charles-Henri Sanson grandit dans une famille chargee d'executer les condamnes. Entre devoir familial, violence sociale et envie de rester humain, il avance vers un destin lie aux heures les plus sombres de la Revolution.",
     'Hellsing' => "L'organisation Hellsing protege l'Angleterre contre les vampires et les creatures surnaturelles. Son arme la plus dangereuse est Alucard, un vampire surpuissant qui traque les monstres avec une brutalite froide et un humour inquietant.",
@@ -94,44 +116,19 @@ $resumesConnus = [
     'berdly bizzare adventure' => "Une entree ajoutee a la main, pensee comme un delire autour d'une aventure improbable et dramatique. Le livre garde un ton volontairement absurde, entre reference de fan et fausse epopee beaucoup trop serieuse pour son propre bien."
 ];
 
-if ($titre === '') {
-    echo json_encode(['ok' => false, 'message' => 'Titre manquant.']);
-    exit;
-}
+foreach ($livres as $livre) {
+    $resume = $resumesConnus[$livre['titre']] ?? trouverSynopsis($livre['titre']);
 
-if (isset($resumesConnus[$titre])) {
-    echo json_encode([
-        'ok' => true,
-        'titre' => $titre,
-        'langue' => 'fr',
-        'synopsis' => $resumesConnus[$titre]
+    if ($resume === '') {
+        echo $livre['titre'] . " : ignore\n";
+        continue;
+    }
+
+    $requete->execute([
+        'resume' => $resume,
+        'id' => $livre['id']
     ]);
-    exit;
+
+    echo $livre['titre'] . " : ok\n";
+    sleep(1);
 }
-
-$url = 'https://api.jikan.moe/v4/manga?q=' . urlencode($titre) . '&limit=1';
-$reponse = appelApi($url);
-
-if ($reponse === false) {
-    echo json_encode(['ok' => false, 'message' => 'Impossible de joindre l API.']);
-    exit;
-}
-
-$data = json_decode($reponse, true);
-$manga = $data['data'][0] ?? null;
-$synopsis = trim($manga['synopsis'] ?? '');
-
-if (!$manga || $synopsis === '') {
-    echo json_encode(['ok' => false, 'message' => 'Aucun synopsis trouve.']);
-    exit;
-}
-
-$synopsis = nettoyerSynopsis($synopsis);
-$synopsis = traduireEnFrancais($synopsis);
-
-echo json_encode([
-    'ok' => true,
-    'titre' => $manga['title'] ?? $titre,
-    'langue' => 'fr',
-    'synopsis' => $synopsis
-]);

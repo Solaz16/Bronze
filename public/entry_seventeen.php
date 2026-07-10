@@ -15,16 +15,16 @@ $titre_page = 'ENTRY NUMBER SEVENTEEN';
     <main class="entry-wrap">
         <section class="entry-box">
             <p class="entry-small">ENTRY NUMBER SEVENTEEN</p>
-            <h1>dark darker yet darker</h1>
-            <p>the readings are unstable</p>
-            <p>the room keeps getting darker</p>
-            <p>negative light detected</p>
-            <p>the next test feels</p>
-            <p>very</p>
-            <p>very</p>
-            <p>interesting</p>
-            <button id="entryStart" type="button">listen</button>
-            <a href="index.php">return</a>
+            <h1>DARK DARKER YET DARKER</h1>
+            <p>THE READINGS ARE UNSTABLE</p>
+            <p>THE ROOM KEEPS GETTING DARKER</p>
+            <p>NEGATIVE LIGHT DETECTED</p>
+            <p>THE NEXT TEST FEELS</p>
+            <p>VERY</p>
+            <p>VERY</p>
+            <p>INTERESTING</p>
+            <button id="entryStart" type="button">LISTEN</button>
+            <a href="index.php">RETURN</a>
         </section>
     </main>
 

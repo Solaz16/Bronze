@@ -12,7 +12,7 @@ foreach ($livres as $livre) {
         continue;
     }
 
-    $couverture = jaquetteLivre($livre['titre'], '', $livre['auteur'] ?? '');
+    $couverture = jaquetteLivreAutomatique($livre['titre'], '', $livre['auteur'] ?? '');
 
     if ($couverture === '') {
         echo $livre['titre'] . " : aucune jaquette trouvee\n";

@@ -11,7 +11,7 @@ if ($titre === '') {
     exit;
 }
 
-$url = jaquetteLivre($titre, '', $auteur);
+$url = jaquetteLivreAutomatique($titre, '', $auteur);
 
 echo json_encode([
     'ok' => $url !== '',

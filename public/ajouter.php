@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (count($erreurs) === 0) {
         if ($couverture === '') {
-            $couverture = jaquetteLivre($titre, '', $auteur);
+            $couverture = jaquetteLivreAutomatique($titre, '', $auteur);
         }
 
         try {

@@ -88,7 +88,12 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    document.querySelectorAll('.carte-livre').forEach(function (carte) {
+    function initialiserCarte(carte) {
+        if (carte.dataset.initialisee === '1') {
+            return;
+        }
+
+        carte.dataset.initialisee = '1';
         var titre = carte.querySelector('h3') ? carte.querySelector('h3').textContent.trim() : '';
         var favori = document.createElement('button');
         favori.type = 'button';
@@ -109,8 +114,15 @@ document.addEventListener('DOMContentLoaded', function () {
             carte.classList.toggle('favori', actif);
             favori.classList.toggle('actif', actif);
             localStorage.setItem('favori_' + titre, actif ? '1' : '0');
+            document.dispatchEvent(new CustomEvent('favorisChange'));
             afficherToast(actif ? titre + ' ajoute aux favoris' : titre + ' retire des favoris');
         });
+
+        var miniProgression = carte.querySelector('[data-progression-mini] span');
+        var progression = localStorage.getItem('progression_' + titre) || '0';
+        if (miniProgression) {
+            miniProgression.style.width = progression + '%';
+        }
 
         carte.addEventListener('mousemove', function (event) {
             var rectangle = carte.getBoundingClientRect();
@@ -124,7 +136,9 @@ document.addEventListener('DOMContentLoaded', function () {
         carte.addEventListener('mouseleave', function () {
             carte.style.transform = '';
         });
-    });
+    }
+
+    document.querySelectorAll('.carte-livre').forEach(initialiserCarte);
 
     var recherche = document.querySelector('#recherche');
     var cartes = document.querySelectorAll('.carte-livre');
@@ -137,10 +151,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         var texte = recherche.value.toLowerCase().trim();
         var visibles = 0;
+        var seulementFavoris = document.body.classList.contains('filtre-favoris-actif');
 
         cartes.forEach(function (carte) {
             var contenu = carte.textContent.toLowerCase();
-            var visible = contenu.indexOf(texte) !== -1;
+            var visible = contenu.indexOf(texte) !== -1 && (!seulementFavoris || carte.classList.contains('favori'));
             carte.classList.toggle('cachee', !visible);
 
             if (visible) {
@@ -151,11 +166,84 @@ document.addEventListener('DOMContentLoaded', function () {
         if (compteur) {
             compteur.textContent = visibles + ' manga(s) affiches';
         }
+
+        var aucun = document.querySelector('.aucun-resultat');
+        if (aucun) {
+            aucun.hidden = visibles !== 0;
+        }
     }
 
     if (recherche && cartes.length > 0) {
         recherche.addEventListener('input', filtrerCartes);
     }
+
+    var filtreFavoris = document.querySelector('[data-filtre-favoris]');
+    if (filtreFavoris) {
+        filtreFavoris.addEventListener('click', function () {
+            var actif = document.body.classList.toggle('filtre-favoris-actif');
+            filtreFavoris.classList.toggle('actif', actif);
+            filtreFavoris.textContent = actif ? 'Voir tous les mangas' : 'Mes favoris';
+            filtrerCartes();
+        });
+    }
+
+    var surprise = document.querySelector('[data-surprise]');
+    if (surprise) {
+        surprise.addEventListener('click', function () {
+            var disponibles = Array.prototype.filter.call(cartes, function (carte) {
+                return !carte.classList.contains('cachee');
+            });
+            if (disponibles.length === 0) {
+                afficherToast('Aucun manga a choisir');
+                return;
+            }
+            var choix = disponibles[Math.floor(Math.random() * disponibles.length)];
+            choix.classList.add('choix-surprise');
+            choix.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            afficherToast('Essaie ' + choix.dataset.titre);
+            setTimeout(function () { choix.classList.remove('choix-surprise'); }, 1800);
+        });
+    }
+
+    var detailLivre = document.querySelector('[data-detail-livre]');
+    if (detailLivre) {
+        var progressionInput = detailLivre.querySelector('[data-progression]');
+        var progressionTexte = detailLivre.querySelector('[data-progression-texte]');
+        var titreDetail = detailLivre.dataset.titre;
+        var progressionSauvee = localStorage.getItem('progression_' + titreDetail) || '0';
+        if (progressionInput) {
+            progressionInput.value = progressionSauvee;
+            progressionTexte.textContent = progressionSauvee + '%';
+            progressionInput.addEventListener('input', function () {
+                localStorage.setItem('progression_' + titreDetail, progressionInput.value);
+                progressionTexte.textContent = progressionInput.value + '%';
+                afficherToast('Progression enregistree');
+            });
+        }
+    }
+
+    function afficherFavoris() {
+        var grilleFavoris = document.querySelector('[data-favoris-grille]');
+        if (!grilleFavoris) {
+            return;
+        }
+        fetch('livres.json.php').then(function (reponse) { return reponse.json(); }).then(function (livres) {
+            grilleFavoris.innerHTML = '';
+            var favoris = livres.filter(function (livre) { return localStorage.getItem('favori_' + livre.titre) === '1'; });
+            document.querySelector('[data-favoris-vide]').hidden = favoris.length > 0;
+            favoris.forEach(function (livre) {
+                var carte = document.createElement('article');
+                carte.className = 'carte-livre favori';
+                carte.dataset.titre = livre.titre;
+                carte.innerHTML = '<a class="carte-image" href="livre.php?id=' + livre.id + '"><div class="jaquette">' + (livre.couverture ? '<img src="' + livre.couverture + '" alt="Jaquette de ' + livre.titre + '">' : '') + '</div></a><div class="carte-contenu"><h3>' + livre.titre + '</h3><p>' + livre.auteur + '</p><p>' + livre.categorie + '</p><div class="progression-mini"><span></span></div></div><div class="carte-actions"><a class="bouton" href="livre.php?id=' + livre.id + '">Voir</a></div>';
+                grilleFavoris.appendChild(carte);
+                initialiserCarte(carte);
+            });
+        }).catch(function () { afficherToast('Impossible de charger les favoris'); });
+    }
+
+    afficherFavoris();
+    document.addEventListener('favorisChange', afficherFavoris);
 
     var boutonSynopsis = document.querySelector('[data-synopsis]');
     var champTitre = document.querySelector('#titre');
@@ -270,6 +358,38 @@ document.addEventListener('DOMContentLoaded', function () {
     var konamiPosition = 0;
     var motGaster = 'gaster';
     var positionGaster = 0;
+    var motTerminal = 'terminal';
+    var positionTerminal = 0;
+
+    function ouvrirTerminal() {
+        if (document.querySelector('.terminal-cache')) {
+            return;
+        }
+        var terminal = document.createElement('div');
+        terminal.className = 'terminal-cache';
+        terminal.innerHTML = '<div class="terminal-fenetre"><button type="button" class="terminal-fermer" aria-label="Fermer">x</button><p>ATLASIS.ME // TERMINAL</p><div class="terminal-sortie">Tape <strong>help</strong> pour voir les commandes.</div><form><span>&gt;</span><input type="text" autocomplete="off" autofocus></form></div>';
+        document.body.appendChild(terminal);
+        var champ = terminal.querySelector('input');
+        var sortie = terminal.querySelector('.terminal-sortie');
+        champ.focus();
+        terminal.querySelector('.terminal-fermer').addEventListener('click', function () { terminal.remove(); });
+        terminal.querySelector('form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            var commande = champ.value.toLowerCase().trim();
+            var reponses = {
+                help: 'help, blame, catalogue, favoris, gaster, clear',
+                blame: 'BLAME! : recommandation prioritaire. La megastructure ne s arrete jamais.',
+                catalogue: 'Ouverture du catalogue...',
+                favoris: 'Ouverture des favoris...',
+                gaster: 'ENTRY NUMBER SEVENTEEN EST ACCESSIBLE EN TAPANT GASTER.',
+                clear: ''
+            };
+            if (commande === 'catalogue') { window.location.href = 'catalogue.php'; return; }
+            if (commande === 'favoris') { window.location.href = 'mes_favoris.php'; return; }
+            sortie.textContent = reponses[commande] !== undefined ? reponses[commande] : 'Commande inconnue.';
+            champ.value = '';
+        });
+    }
 
     function lancerAkuma() {
         var ancien = document.querySelector('.akuma-easter-egg');
@@ -319,6 +439,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 positionGaster = 0;
                 afficherToast('...');
                 setTimeout(ouvrirEntrySeventeen, 450);
+            }
+
+            if (touche === motTerminal[positionTerminal]) {
+                positionTerminal++;
+            } else {
+                positionTerminal = touche === motTerminal[0] ? 1 : 0;
+            }
+
+            if (positionTerminal === motTerminal.length) {
+                positionTerminal = 0;
+                ouvrirTerminal();
             }
         }
 

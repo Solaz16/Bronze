@@ -8,6 +8,7 @@ $categorie_id = (int) ($_GET['categorie_id'] ?? 0);
 $disponible = $_GET['disponible'] ?? '';
 $annee_min = trim($_GET['annee_min'] ?? '');
 $annee_max = trim($_GET['annee_max'] ?? '');
+$ordre = $_GET['ordre'] ?? 'titre';
 $page = (int) ($_GET['page'] ?? 1);
 $par_page = 10;
 
@@ -64,7 +65,8 @@ if ($page > $total_pages) {
     $depart = ($page - 1) * $par_page;
 }
 
-$sql = "SELECT livres.*, categories.nom AS categorie" . $sql_base . " ORDER BY livres.titre LIMIT :depart, :par_page";
+$ordre_sql = $ordre === 'recent' ? 'livres.annee_publication DESC, livres.titre' : ($ordre === 'auteur' ? 'livres.auteur, livres.titre' : 'livres.titre');
+$sql = "SELECT livres.*, categories.nom AS categorie" . $sql_base . " ORDER BY " . $ordre_sql . " LIMIT :depart, :par_page";
 
 $requete = $pdo->prepare($sql);
 
@@ -144,6 +146,18 @@ include __DIR__ . '/../templates/header.php';
                 <label for="annee_max">Annee max</label>
                 <input type="number" id="annee_max" name="annee_max" value="<?= htmlspecialchars($annee_max) ?>">
             </div>
+            <div>
+                <label for="ordre">Trier</label>
+                <select id="ordre" name="ordre">
+                    <option value="titre" <?= $ordre === 'titre' ? 'selected' : '' ?>>Titre</option>
+                    <option value="auteur" <?= $ordre === 'auteur' ? 'selected' : '' ?>>Auteur</option>
+                    <option value="recent" <?= $ordre === 'recent' ? 'selected' : '' ?>>Plus recent</option>
+                </select>
+            </div>
+        </div>
+        <div class="outils-catalogue">
+            <button type="button" class="bouton bouton-secondaire" data-surprise>Surprise</button>
+            <button type="button" class="bouton bouton-secondaire" data-filtre-favoris>Mes favoris</button>
         </div>
     </form>
 
@@ -155,6 +169,7 @@ include __DIR__ . '/../templates/header.php';
         <p><?= $total ?> resultat(s) trouve(s)</p>
         <p class="aide-js">Appuie sur / pour chercher rapidement</p>
     </div>
+    <p class="aucun-resultat" hidden>Aucun manga ne correspond a ta recherche.</p>
 
     <?php if (count($livres) === 0): ?>
         <p>Aucun livre trouve.</p>
@@ -162,7 +177,7 @@ include __DIR__ . '/../templates/header.php';
         <div class="catalogue-grille">
             <?php foreach ($livres as $livre): ?>
                 <?php $jaquette = jaquetteLivre($livre['titre'], $livre['couverture'] ?? ''); ?>
-                <article class="carte-livre <?= $livre['titre'] === 'Blame!' ? 'carte-blame' : '' ?>">
+                <article class="carte-livre <?= $livre['titre'] === 'Blame!' ? 'carte-blame' : '' ?>" data-id="<?= (int) $livre['id'] ?>" data-titre="<?= htmlspecialchars($livre['titre']) ?>" data-auteur="<?= htmlspecialchars($livre['auteur']) ?>" data-categorie="<?= htmlspecialchars($livre['categorie'] ?? '') ?>" data-url="livre.php?id=<?= (int) $livre['id'] ?>">
                     <a class="carte-image" href="livre.php?id=<?= (int) $livre['id'] ?>">
                         <div class="jaquette">
                             <?php if ($jaquette !== ''): ?>
@@ -175,6 +190,7 @@ include __DIR__ . '/../templates/header.php';
                         <?php if ($livre['titre'] === 'Blame!'): ?>
                             <span class="etiquette">Recommande</span>
                         <?php endif; ?>
+                        <div class="progression-mini" data-progression-mini><span></span></div>
                         <h3><?= htmlspecialchars($livre['titre']) ?></h3>
                         <p><?= htmlspecialchars($livre['auteur']) ?></p>
                         <p><?= htmlspecialchars($livre['categorie'] ?? 'Non classe') ?></p>

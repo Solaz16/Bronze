@@ -479,6 +479,170 @@ td a {
     margin-top: 18px;
 }
 
+.outils-catalogue {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.bouton-secondaire {
+    background: #1f3343;
+    color: #dcecff;
+    box-shadow: none;
+}
+
+.bouton-secondaire.actif {
+    background: #d6ad60;
+    color: #111318;
+}
+
+.aucun-resultat,
+.favoris-vide {
+    padding: 18px;
+    border: 1px dashed rgba(148, 163, 184, 0.3);
+    color: #a7bac8;
+    text-align: center;
+}
+
+.progression-mini {
+    height: 5px;
+    margin-top: 14px;
+    overflow: hidden;
+    background: rgba(148, 163, 184, 0.16);
+    border-radius: 999px;
+}
+
+.progression-mini span {
+    display: block;
+    width: 0;
+    height: 100%;
+    background: #74c0fc;
+    border-radius: inherit;
+    transition: width 0.25s ease;
+}
+
+.choix-surprise {
+    animation: choixSurprise 0.6s ease 3;
+}
+
+.lecture {
+    margin: 22px 0;
+    padding: 14px;
+    border: 1px solid rgba(116, 192, 252, 0.2);
+    background: rgba(15, 23, 42, 0.48);
+}
+
+.lecture-entete {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.lecture input {
+    width: 100%;
+    accent-color: #74c0fc;
+}
+
+.recommandations-liees {
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.liste-recommandations {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.liste-recommandations a {
+    display: block;
+    padding: 13px;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    background: rgba(15, 23, 42, 0.55);
+    text-decoration: none;
+}
+
+.liste-recommandations strong,
+.liste-recommandations span {
+    display: block;
+}
+
+.liste-recommandations span {
+    margin-top: 4px;
+    color: #a7bac8;
+    font-size: 14px;
+}
+
+.titre-page-ligne {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: flex-start;
+    margin-bottom: 18px;
+}
+
+.stats-catalogue strong {
+    overflow-wrap: anywhere;
+    font-size: 23px;
+}
+
+.barres-stats {
+    display: grid;
+    gap: 12px;
+}
+
+.barres-stats > div {
+    display: grid;
+    grid-template-columns: 115px 1fr 32px;
+    gap: 12px;
+    align-items: center;
+}
+
+.barre-genre {
+    height: 9px;
+    background: rgba(148, 163, 184, 0.16);
+    overflow: hidden;
+}
+
+.barre-genre i {
+    display: block;
+    height: 100%;
+    background: #d6ad60;
+}
+
+.terminal-cache {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: grid;
+    place-items: center;
+    padding: 18px;
+    background: rgba(3, 8, 10, 0.84);
+}
+
+.terminal-fenetre {
+    position: relative;
+    width: min(620px, 100%);
+    padding: 22px;
+    border: 1px solid #48d597;
+    background: #06130e;
+    color: #9dffc9;
+    box-shadow: 0 0 48px rgba(72, 213, 151, 0.22);
+    font-family: Consolas, monospace;
+}
+
+.terminal-fenetre p { margin-top: 0; }
+.terminal-sortie { min-height: 48px; line-height: 1.5; }
+.terminal-fenetre form { display: flex; gap: 8px; align-items: center; }
+.terminal-fenetre input { margin: 0; border-color: #48d597; background: transparent; color: #d9ffe9; }
+.terminal-fermer { position: absolute; right: 10px; top: 8px; width: 28px; height: 28px; padding: 0; background: transparent; box-shadow: none; }
+
+@keyframes choixSurprise {
+    50% { transform: translateY(-8px) scale(1.025); border-color: #74c0fc; box-shadow: 0 0 0 3px rgba(116, 192, 252, 0.2); }
+}
+
 .carte-livre {
     position: relative;
     background: #10141c;
@@ -1443,5 +1607,37 @@ td a {
 
     .particule {
         display: none;
+    }
+
+    .outils-catalogue {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .outils-catalogue .bouton {
+        width: auto;
+        margin: 0;
+        padding: 10px 8px;
+        font-size: 13px;
+    }
+
+    .titre-page-ligne {
+        display: block;
+    }
+
+    .titre-page-ligne .bouton {
+        display: inline-block;
+        width: auto;
+        margin-top: 8px;
+    }
+
+    .liste-recommandations {
+        grid-template-columns: 1fr;
+    }
+
+    .barres-stats > div {
+        grid-template-columns: 88px 1fr 22px;
+        gap: 8px;
+        font-size: 13px;
     }
 }

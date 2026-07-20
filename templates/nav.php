@@ -1,6 +1,8 @@
 <nav>
     <a href="index.php">Accueil</a>
     <a href="catalogue.php">Catalogue</a>
+    <a href="mes_favoris.php">Favoris</a>
+    <a href="stats.php">Stats</a>
     <?php if (utilisateurConnecte()): ?>
         <a href="ajouter.php">Ajouter un livre</a>
         <a href="utilisateurs.php">Utilisateurs</a>

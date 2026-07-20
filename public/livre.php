@@ -48,11 +48,18 @@ $requete = $pdo->prepare($sql);
 $requete->execute(['id' => $id]);
 $livre = $requete->fetch(PDO::FETCH_ASSOC);
 
+$recommandations = [];
+if ($livre && $livre['categorie_id']) {
+    $requete_recommandations = $pdo->prepare("SELECT id, titre, auteur FROM livres WHERE categorie_id = :categorie_id AND id != :id ORDER BY titre LIMIT 4");
+    $requete_recommandations->execute(['categorie_id' => $livre['categorie_id'], 'id' => $id]);
+    $recommandations = $requete_recommandations->fetchAll(PDO::FETCH_ASSOC);
+}
+
 $titre_page = 'Detail du livre';
 include __DIR__ . '/../templates/header.php';
 ?>
 
-<section class="bloc">
+<section class="bloc" data-detail-livre data-id="<?= (int) $id ?>" data-titre="<?= htmlspecialchars($livre['titre'] ?? '') ?>">
     <?php if (!$livre): ?>
         <h2>Livre introuvable</h2>
         <p>Le livre demande n'existe pas.</p>
@@ -90,6 +97,10 @@ include __DIR__ . '/../templates/header.php';
         </p>
         <h3>Resume</h3>
         <p><?= nl2br(htmlspecialchars($livre['resume'])) ?></p>
+        <div class="lecture">
+            <div class="lecture-entete"><strong>Progression de lecture</strong><span data-progression-texte>0%</span></div>
+            <input type="range" min="0" max="100" value="0" data-progression aria-label="Progression de lecture">
+        </div>
         <?php if (utilisateurConnecte() && (int) $livre['disponible'] === 0): ?>
             <form method="post" class="formulaire-court">
                 <input type="hidden" name="action" value="reserver">
@@ -105,6 +116,19 @@ include __DIR__ . '/../templates/header.php';
             </p>
         <?php endif; ?>
         <a href="catalogue.php">Retour au catalogue</a>
+        <?php if (count($recommandations) > 0): ?>
+            <section class="recommandations-liees">
+                <h3>Dans le meme univers</h3>
+                <div class="liste-recommandations">
+                    <?php foreach ($recommandations as $recommandation): ?>
+                        <a href="livre.php?id=<?= (int) $recommandation['id'] ?>">
+                            <strong><?= htmlspecialchars($recommandation['titre']) ?></strong>
+                            <span><?= htmlspecialchars($recommandation['auteur']) ?></span>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+        <?php endif; ?>
     <?php endif; ?>
 </section>
 

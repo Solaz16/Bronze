@@ -61,7 +61,12 @@ INSERT INTO categories (nom) VALUES
 ('Cyberpunk'),
 ('Dark fantasy'),
 ('Thriller'),
-('Historique');
+('Historique'),
+('Horreur'),
+('Psychologique'),
+('Science-fiction'),
+('Drame'),
+('Aventure');
 
 INSERT INTO livres (titre, auteur, isbn, annee_publication, resume, categorie_id, disponible) VALUES
 ('Blame!', 'Tsutomu Nihei', '9782723496447', 1997, 'Killy traverse une immense megastructure pour retrouver un gene rare.', 2, 1),
@@ -99,6 +104,43 @@ INSERT INTO livres (titre, auteur, isbn, annee_publication, resume, categorie_id
 ('Bokurano', 'Mohiro Kitoh', '9782845807824', 2003, 'Des enfants pilotent un robot geant avec un prix terrible.', 2, 1),
 ('Devilman', 'Go Nagai', '9782372872071', 1972, 'Akira devient Devilman pour affronter les demons.', 3, 1),
 ('Girls'' Last Tour', 'Tsukumizu', '9780316470636', 2014, 'Deux filles traversent les ruines silencieuses de la civilisation.', 1, 1);
+
+INSERT INTO livres (titre, auteur, isbn, annee_publication, resume, categorie_id, disponible) VALUES
+('Blade of the Immortal', 'Hiroaki Samura', '9780003000001', 1993, 'Un ronin maudit traverse les siecles en cherchant la redemption.', 5, 1),
+('Shigurui', 'Takayuki Yamaguchi', '9780003000002', 2003, 'Un duel d honneur plonge le Japon feodal dans une violence glaciale.', 5, 0),
+('A Bride''s Story', 'Kaoru Mori', '9780003000003', 2008, 'Une histoire de mariage et de quotidien dans l Asie centrale du XIXe siecle.', 5, 1),
+('Golden Kamuy', 'Satoru Noda', '9780003000004', 2014, 'Une chasse au tresor brutale se deroule dans un Hokkaido dur et sauvage.', 5, 1),
+('Mushishi', 'Yuki Urushibara', '9780003000005', 2000, 'Un vagabond enquete sur des phenomenes discrets lies aux mushi.', 1, 1),
+('The Drifting Classroom', 'Kazuo Umezu', '9780003000006', 1972, 'Une ecole entiere se retrouve projetee dans un monde de cauchemar.', 6, 0),
+('Uzumaki', 'Junji Ito', '9780003000007', 1998, 'Une ville entiere bascule dans une obsession macabre autour des spirales.', 6, 0),
+('Gyo', 'Junji Ito', '9780003000008', 2001, 'Des creatures mecaniques et une odeur pestilentielle envahissent le rivage.', 6, 0),
+('Tomie', 'Junji Ito', '9780003000009', 1987, 'Une jeune femme insaisissable nourrit autour d elle desir et destruction.', 6, 0),
+('Remina', 'Junji Ito', '9780003000010', 2005, 'Une planete inconnue attire la peur et la folie a l echelle mondiale.', 6, 0),
+('Sensor', 'Junji Ito', '9780003000011', 2018, 'Des visions etranges relient une montagne isolee a un phenomene cosmique.', 6, 1),
+('Franken Fran', 'Katsuhisa Kigitsu', '9780003000012', 2006, 'Une chirurgienne monstrueusement brillante enchaine les experiences absurdes.', 6, 1),
+('I Am a Hero', 'Kengo Hanazawa', '9780003000013', 2009, 'Un assistant mangaka survit a un effondrement zombie de plus en plus sourd.', 6, 0),
+('Under Ninja', 'Kengo Hanazawa', '9780003000014', 2018, 'Des ninjas invisibles continuent de manipuler le Japon contemporain.', 4, 1),
+('Blood on the Tracks', 'Shuzo Oshimi', '9780003000015', 2017, 'Une relation mere-fils derive vers une tension psychologique insoutenable.', 7, 1),
+('Happiness', 'Shuzo Oshimi', '9780003000016', 2015, 'Un adolescent subit une metamorphose qui l eloigne peu a peu du monde humain.', 6, 0),
+('The Flowers of Evil', 'Shuzo Oshimi', '9780003000017', 2009, 'Un collegien glisse dans l obsession, la honte et l auto-destruction.', 7, 1),
+('Welcome Back, Alice', 'Shuzo Oshimi', '9780003000018', 2020, 'Trois adolescents confrontent une identite mouvante et des desirs confus.', 7, 1),
+('Dragon Head', 'Minetaro Mochizuki', '9780003000019', 1994, 'Apres un cataclysme, un groupe de survivants derive dans un huis clos de peur.', 4, 0),
+('Billy Bat', 'Naoki Urasawa', '9780003000020', 2008, 'Un dessinateur decouvre que son heros de papier manipule une histoire plus vaste.', 4, 1),
+('Sunny', 'Taiyo Matsumoto', '9780003000021', 2006, 'Des enfants trouvent un refuge fragile dans une voiture abandonnee.', 9, 1),
+('Tekkonkinkreet', 'Taiyo Matsumoto', '9780003000022', 1993, 'Deux garcons protegent leur ville contre des forces qui la devorent de l interieur.', 1, 1),
+('Ping Pong', 'Taiyo Matsumoto', '9780003000023', 1996, 'Des adolescents se cherchent a travers l intensite du sport et du doute.', 9, 1),
+('Number Five', 'Taiyo Matsumoto', '9780003000024', 2004, 'Des agents d elite naviguent dans une mission aussi politique qu onirique.', 10, 1),
+('A Distant Neighborhood', 'Jiro Taniguchi', '9780003000025', 1998, 'Un adulte retourne dans son adolescence et affronte ses choix avec calme.', 9, 1),
+('The Walking Man', 'Jiro Taniguchi', '9780003000026', 1992, 'Une promenade sans but devient une meditation douce sur le temps et la ville.', 9, 1),
+('Summit of the Gods', 'Jiro Taniguchi', '9780003000027', 2000, 'L obsession de l alpinisme devient une quete d absolu et de silence.', 10, 1),
+('Battle Angel Alita', 'Yukito Kishiro', '9780003000028', 1990, 'Une cyborg amnesique remonte les strates d un futur dur et metallique.', 2, 1),
+('No Guns Life', 'Tasuku Karasuma', '9780003000029', 2014, 'Un enqueteur au crane transforme traine dans une ville saturee de machines.', 2, 1),
+('Origin', 'Boichi', '9780003000030', 2016, 'Un androide protege un secret dans un Tokyo sature de haute technologie.', 2, 1),
+('Aposimz', 'Tsutomu Nihei', '9780003000031', 2017, 'Un monde glace et mecanise cache des ruines plus anciennes qu il n y parait.', 8, 1),
+('Abara', 'Tsutomu Nihei', '9780003000032', 2005, 'Un survivant monstrueux traverse des structures minerales et hostiles.', 2, 0),
+('Dai Dark', 'Q Hayashida', '9780003000033', 2019, 'Une chasse aux ossements sacres entraine un trio dans l espace le plus sale.', 3, 1),
+('Claymore', 'Norihiro Yagi', '9780003000034', 2001, 'Des guerrieres hybrides affrontent des monstres dans un monde froid et brutal.', 3, 1),
+('Hell''s Paradise: Jigokuraku', 'Yuji Kaku', '9780003000035', 2018, 'Des criminels cherchent l immortalite sur une ile luxuriante et mortelle.', 3, 1);
 
 INSERT INTO utilisateurs (nom, email, mot_de_passe, actif) VALUES
 ('Admin', 'admin@example.com', '$2y$12$kYaarICtO638MlAIu/ohXO0bHKQxA3o/JtLwLtVbV6ILaEsMEI96i', 1),

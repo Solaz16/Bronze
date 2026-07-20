@@ -142,7 +142,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var recherche = document.querySelector('#recherche');
     var cartes = document.querySelectorAll('.carte-livre');
-    var compteur = document.querySelector('.catalogue-entete p');
+    var compteurPage = document.querySelector('[data-catalogue-page-count]');
+    var formulaireCatalogue = document.querySelector('[data-catalogue-form]');
+    var champRechercheCatalogue = document.querySelector('[data-catalogue-search]');
+    var debounceCatalogue = null;
+
+    function soumettreCatalogue(delai) {
+        if (!formulaireCatalogue) {
+            return;
+        }
+
+        window.clearTimeout(debounceCatalogue);
+        debounceCatalogue = window.setTimeout(function () {
+            if (typeof formulaireCatalogue.requestSubmit === 'function') {
+                formulaireCatalogue.requestSubmit();
+            } else {
+                formulaireCatalogue.submit();
+            }
+        }, delai);
+    }
 
     function filtrerCartes() {
         if (!recherche || cartes.length === 0) {
@@ -163,8 +181,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        if (compteur) {
-            compteur.textContent = visibles + ' manga(s) affiches';
+        if (compteurPage) {
+            compteurPage.textContent = visibles + ' manga(s) visibles sur ' + cartes.length + ' sur cette page.';
         }
 
         var aucun = document.querySelector('.aucun-resultat');
@@ -175,6 +193,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (recherche && cartes.length > 0) {
         recherche.addEventListener('input', filtrerCartes);
+    }
+
+    if (formulaireCatalogue) {
+        formulaireCatalogue.querySelectorAll('select').forEach(function (champ) {
+            champ.addEventListener('change', function () {
+                soumettreCatalogue(100);
+            });
+        });
+    }
+
+    if (champRechercheCatalogue) {
+        champRechercheCatalogue.addEventListener('input', function () {
+            filtrerCartes();
+            soumettreCatalogue(350);
+        });
     }
 
     var filtreFavoris = document.querySelector('[data-filtre-favoris]');

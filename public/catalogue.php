@@ -57,7 +57,13 @@ if (count($conditions) > 0) {
 $sql_count = "SELECT COUNT(*)" . $sql_base;
 $requete_count = $pdo->prepare($sql_count);
 $requete_count->execute($parametres);
-$total = (int) $requete_count->fetchColumn();
+$compteurs = $pdo->prepare("SELECT COUNT(*) AS total, SUM(CASE WHEN livres.disponible = 1 THEN 1 ELSE 0 END) AS disponibles, SUM(CASE WHEN livres.disponible = 0 THEN 1 ELSE 0 END) AS indisponibles" . $sql_base);
+$compteurs->execute($parametres);
+$statistiques = $compteurs->fetch(PDO::FETCH_ASSOC) ?: ['total' => 0, 'disponibles' => 0, 'indisponibles' => 0];
+
+$total = (int) $statistiques['total'];
+$total_disponibles = (int) $statistiques['disponibles'];
+$total_indisponibles = (int) $statistiques['indisponibles'];
 $total_pages = max(1, (int) ceil($total / $par_page));
 
 if ($page > $total_pages) {
@@ -78,6 +84,43 @@ $requete->bindValue('depart', $depart, PDO::PARAM_INT);
 $requete->bindValue('par_page', $par_page, PDO::PARAM_INT);
 $requete->execute();
 $livres = $requete->fetchAll(PDO::FETCH_ASSOC);
+$livres_affiches = count($livres);
+
+$filtres_actifs = [];
+if ($recherche !== '') {
+    $filtres_actifs[] = 'Recherche: ' . $recherche;
+}
+if ($categorie_id > 0) {
+    foreach ($categories as $categorie) {
+        if ((int) $categorie['id'] === $categorie_id) {
+            $filtres_actifs[] = 'Categorie: ' . $categorie['nom'];
+            break;
+        }
+    }
+}
+if ($disponible === '1') {
+    $filtres_actifs[] = 'Disponibles uniquement';
+} elseif ($disponible === '0') {
+    $filtres_actifs[] = 'Indisponibles uniquement';
+}
+if ($annee_min !== '') {
+    $filtres_actifs[] = 'Depuis ' . $annee_min;
+}
+if ($annee_max !== '') {
+    $filtres_actifs[] = 'Jusqu a ' . $annee_max;
+}
+if ($ordre === 'auteur') {
+    $filtres_actifs[] = 'Tri auteur';
+} elseif ($ordre === 'recent') {
+    $filtres_actifs[] = 'Tri recent';
+}
+
+$pages_a_afficher = [];
+for ($i = 1; $i <= $total_pages; $i++) {
+    if ($i === 1 || $i === $total_pages || abs($i - $page) <= 1) {
+        $pages_a_afficher[] = $i;
+    }
+}
 
 $requete_blame = $pdo->prepare("SELECT livres.*, categories.nom AS categorie
         FROM livres
@@ -92,6 +135,26 @@ include __DIR__ . '/../templates/header.php';
 
 <section class="bloc">
     <h2>Catalogue</h2>
+    <p class="catalogue-intro">Une collection dense de mangas cultes, sombres et contemporains. Les filtres se mettent a jour instantanement et la pagination reste legere meme avec une grosse base.</p>
+
+    <div class="catalogue-metrics" aria-label="Statistiques du catalogue">
+        <article class="catalogue-metric">
+            <strong><?= $total ?></strong>
+            <span>mangas trouves</span>
+        </article>
+        <article class="catalogue-metric">
+            <strong><?= $total_disponibles ?></strong>
+            <span>disponibles</span>
+        </article>
+        <article class="catalogue-metric">
+            <strong><?= $total_indisponibles ?></strong>
+            <span>indisponibles</span>
+        </article>
+        <article class="catalogue-metric">
+            <strong><?= $livres_affiches ?></strong>
+            <span>sur cette page</span>
+        </article>
+    </div>
 
     <?php if ($blame): ?>
         <?php $jaquette_blame = jaquetteLivre($blame['titre'], $blame['couverture'] ?? ''); ?>
@@ -108,10 +171,10 @@ include __DIR__ . '/../templates/header.php';
         </div>
     <?php endif; ?>
 
-    <form method="get" class="formulaire-recherche">
-        <label for="recherche">Rechercher par titre ou auteur</label>
+    <form method="get" class="formulaire-recherche" data-catalogue-form>
+        <label for="recherche">Recherche instantanee</label>
         <div class="ligne-formulaire">
-            <input type="text" id="recherche" name="recherche" value="<?= htmlspecialchars($recherche) ?>">
+            <input type="text" id="recherche" name="recherche" value="<?= htmlspecialchars($recherche) ?>" placeholder="Titre, auteur, ambiance..." autocomplete="off" data-catalogue-search>
             <button type="submit">Rechercher</button>
         </div>
 
@@ -158,15 +221,26 @@ include __DIR__ . '/../templates/header.php';
         <div class="outils-catalogue">
             <button type="button" class="bouton bouton-secondaire" data-surprise>Surprise</button>
             <button type="button" class="bouton bouton-secondaire" data-filtre-favoris>Mes favoris</button>
+            <a class="bouton bouton-secondaire" href="catalogue.php">Reinitialiser</a>
         </div>
     </form>
+
+    <div class="catalogue-filtres-actifs" aria-label="Filtres actifs">
+        <?php if (count($filtres_actifs) > 0): ?>
+            <?php foreach ($filtres_actifs as $filtre): ?>
+                <span><?= htmlspecialchars($filtre) ?></span>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <span>Tous les mangas</span>
+        <?php endif; ?>
+    </div>
 
     <?php if ($recherche !== ''): ?>
         <p>Resultats pour : <?= htmlspecialchars($recherche) ?></p>
     <?php endif; ?>
 
     <div class="catalogue-entete">
-        <p><?= $total ?> resultat(s) trouve(s)</p>
+        <p data-catalogue-page-count><?= $livres_affiches ?> manga(s) visibles sur cette page.</p>
         <p class="aide-js">Appuie sur / pour chercher rapidement</p>
     </div>
     <p class="aucun-resultat" hidden>Aucun manga ne correspond a ta recherche.</p>
@@ -223,9 +297,14 @@ include __DIR__ . '/../templates/header.php';
                 <a href="<?= $prefixe ?>page=<?= $page - 1 ?>">Precedent</a>
             <?php endif; ?>
 
-            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                <a class="<?= $i === $page ? 'page-active' : '' ?>" href="<?= $prefixe ?>page=<?= $i ?>"><?= $i ?></a>
-            <?php endfor; ?>
+            <?php $page_precedente = 0; ?>
+            <?php foreach ($pages_a_afficher as $numero_page): ?>
+                <?php if ($page_precedente !== 0 && $numero_page > $page_precedente + 1): ?>
+                    <span class="pagination-ellipsis">...</span>
+                <?php endif; ?>
+                <a class="<?= $numero_page === $page ? 'page-active' : '' ?>" href="<?= $prefixe ?>page=<?= $numero_page ?>"><?= $numero_page ?></a>
+                <?php $page_precedente = $numero_page; ?>
+            <?php endforeach; ?>
 
             <?php if ($page < $total_pages): ?>
                 <a href="<?= $prefixe ?>page=<?= $page + 1 ?>">Suivant</a>

@@ -16,5 +16,5 @@ $url = jaquetteLivre($titre, '', $auteur);
 echo json_encode([
     'ok' => $url !== '',
     'url' => $url,
-    'source' => str_starts_with($url, 'https://covers.openlibrary.org/') ? 'openlibrary' : 'cache'
+    'source' => str_starts_with($url, 'https://covers.openlibrary.org/') ? 'openlibrary' : (str_starts_with($url, 'data:image/svg+xml') ? 'fallback' : 'cache')
 ], JSON_UNESCAPED_UNICODE);

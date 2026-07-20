@@ -153,6 +153,50 @@ function jaquetteJikan($titre)
     return '';
 }
 
+function jaquetteFallbackLocale($titre, $auteur = '')
+{
+    $texteTitre = trim($titre) !== '' ? trim($titre) : 'Jaquette manquante';
+    $texteAuteur = trim($auteur) !== '' ? trim($auteur) : 'Fallback automatique';
+
+    if (function_exists('mb_substr')) {
+        $texteTitre = mb_substr($texteTitre, 0, 42, 'UTF-8');
+        $texteAuteur = mb_substr($texteAuteur, 0, 30, 'UTF-8');
+    } else {
+        $texteTitre = substr($texteTitre, 0, 42);
+        $texteAuteur = substr($texteAuteur, 0, 30);
+    }
+
+    $texteTitre = htmlspecialchars($texteTitre, ENT_QUOTES | ENT_XML1, 'UTF-8');
+    $texteAuteur = htmlspecialchars($texteAuteur, ENT_QUOTES | ENT_XML1, 'UTF-8');
+
+    $svg = <<<SVG
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="920" viewBox="0 0 640 920">
+    <defs>
+        <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#0d1724" />
+            <stop offset="52%" stop-color="#101826" />
+            <stop offset="100%" stop-color="#05070b" />
+        </linearGradient>
+        <linearGradient id="glow" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#74c0fc" stop-opacity="0.2" />
+            <stop offset="100%" stop-color="#d6ad60" stop-opacity="0.08" />
+        </linearGradient>
+    </defs>
+    <rect width="640" height="920" fill="url(#bg)" />
+    <rect x="0" y="0" width="640" height="920" fill="url(#glow)" />
+    <rect x="36" y="36" width="568" height="848" rx="26" fill="none" stroke="#74c0fc" stroke-opacity="0.22" stroke-width="3" />
+    <path d="M86 196 H554" stroke="#d6ad60" stroke-opacity="0.34" stroke-width="2" />
+    <path d="M86 736 H554" stroke="#4f9d8f" stroke-opacity="0.24" stroke-width="2" />
+    <text x="86" y="146" fill="#9ecbff" font-family="Segoe UI, Arial, sans-serif" font-size="30" letter-spacing="6">JAQUETTE AUTO</text>
+    <text x="86" y="320" fill="#f8fbff" font-family="Segoe UI, Arial, sans-serif" font-size="54" font-weight="700">$texteTitre</text>
+    <text x="86" y="386" fill="#a7bac8" font-family="Segoe UI, Arial, sans-serif" font-size="24">$texteAuteur</text>
+    <text x="86" y="790" fill="#d6ad60" font-family="Segoe UI, Arial, sans-serif" font-size="22" letter-spacing="4">FALLBACK LOCAL</text>
+</svg>
+SVG;
+
+    return 'data:image/svg+xml;charset=utf-8,' . rawurlencode($svg);
+}
+
 function jaquetteLivre($titre, $couverture = '', $auteur = '')
 {
     if ($couverture !== '') {
@@ -213,5 +257,11 @@ function jaquetteLivre($titre, $couverture = '', $auteur = '')
         return $jaquette;
     }
 
-    return jaquetteJikan($titre);
+    $jaquette = jaquetteJikan($titre);
+
+    if ($jaquette !== '') {
+        return $jaquette;
+    }
+
+    return jaquetteFallbackLocale($titre, $auteur);
 }

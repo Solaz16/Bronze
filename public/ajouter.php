@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/auth.php';
+require_once __DIR__ . '/../config/jaquettes.php';
 
 pageProtegee();
 
@@ -77,6 +78,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (count($erreurs) === 0) {
+        if ($couverture === '') {
+            $couverture = jaquetteLivre($titre, '', $auteur);
+        }
+
         try {
             $sql = "INSERT INTO livres (titre, auteur, isbn, annee_publication, resume, categorie_id, disponible, couverture)
                     VALUES (:titre, :auteur, :isbn, :annee_publication, :resume, :categorie_id, 1, :couverture)";
@@ -150,6 +155,14 @@ include __DIR__ . '/../templates/header.php';
                 </option>
             <?php endforeach; ?>
         </select>
+
+        <div class="jaquette-preview" data-jaquette-preview hidden>
+            <div class="jaquette-preview-image"></div>
+            <div>
+                <strong>Jaquette detectee</strong>
+                <p data-jaquette-preview-texte>Aucune recherche effectuee.</p>
+            </div>
+        </div>
 
         <label for="resume">Resume</label>
         <textarea id="resume" name="resume" rows="5"><?= htmlspecialchars($resume) ?></textarea>

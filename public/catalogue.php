@@ -157,7 +157,7 @@ include __DIR__ . '/../templates/header.php';
     </div>
 
     <?php if ($blame): ?>
-        <?php $jaquette_blame = jaquetteLivre($blame['titre'], $blame['couverture'] ?? ''); ?>
+        <?php $jaquette_blame = jaquetteLivre($blame['titre'], $blame['couverture'] ?? '', $blame['auteur'] ?? ''); ?>
         <div class="recommandation-blame">
             <?php if ($jaquette_blame !== ''): ?>
                 <img src="<?= htmlspecialchars($jaquette_blame) ?>" alt="Jaquette de Blame!">
@@ -250,7 +250,7 @@ include __DIR__ . '/../templates/header.php';
     <?php else: ?>
         <div class="catalogue-grille">
             <?php foreach ($livres as $livre): ?>
-                <?php $jaquette = jaquetteLivre($livre['titre'], $livre['couverture'] ?? ''); ?>
+                <?php $jaquette = jaquetteLivre($livre['titre'], $livre['couverture'] ?? '', $livre['auteur'] ?? ''); ?>
                 <article class="carte-livre <?= $livre['titre'] === 'Blame!' ? 'carte-blame' : '' ?>" data-id="<?= (int) $livre['id'] ?>" data-titre="<?= htmlspecialchars($livre['titre']) ?>" data-auteur="<?= htmlspecialchars($livre['auteur']) ?>" data-categorie="<?= htmlspecialchars($livre['categorie'] ?? '') ?>" data-url="livre.php?id=<?= (int) $livre['id'] ?>">
                     <a class="carte-image" href="livre.php?id=<?= (int) $livre['id'] ?>">
                         <div class="jaquette">

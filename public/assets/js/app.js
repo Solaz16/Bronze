@@ -281,6 +281,58 @@ document.addEventListener('DOMContentLoaded', function () {
     var boutonSynopsis = document.querySelector('[data-synopsis]');
     var champTitre = document.querySelector('#titre');
     var champResume = document.querySelector('#resume');
+    var jaquettePreview = document.querySelector('[data-jaquette-preview]');
+    var jaquettePreviewImage = jaquettePreview ? jaquettePreview.querySelector('.jaquette-preview-image') : null;
+    var jaquettePreviewTexte = document.querySelector('[data-jaquette-preview-texte]');
+    var debounceJaquette = null;
+
+    function afficherApercuJaquette(url, texte) {
+        if (!jaquettePreview || !jaquettePreviewImage || !jaquettePreviewTexte) {
+            return;
+        }
+
+        if (!url) {
+            jaquettePreview.hidden = true;
+            return;
+        }
+
+        jaquettePreview.hidden = false;
+        jaquettePreviewImage.style.backgroundImage = 'url("' + url.replace(/"/g, '%22') + '")';
+        jaquettePreviewTexte.textContent = texte;
+    }
+
+    function rechercherJaquetteAuto() {
+        if (!jaquettePreview || !champTitre) {
+            return;
+        }
+
+        var titre = champTitre.value.trim();
+        var auteur = champAuteur ? champAuteur.value.trim() : '';
+
+        if (titre === '') {
+            afficherApercuJaquette('', '');
+            return;
+        }
+
+        window.clearTimeout(debounceJaquette);
+        debounceJaquette = window.setTimeout(function () {
+            fetch('jaquette_auto.php?titre=' + encodeURIComponent(titre) + '&auteur=' + encodeURIComponent(auteur))
+                .then(function (reponse) { return reponse.json(); })
+                .then(function (data) {
+                    if (!data.ok || !data.url) {
+                        afficherApercuJaquette('', 'Aucune jaquette automatique trouvee.');
+                        return;
+                    }
+
+                    afficherApercuJaquette(data.url, data.source === 'openlibrary' ? 'Jaquette trouvee automatiquement sur Open Library.' : 'Jaquette trouvee automatiquement.');
+                })
+                .catch(function () {
+                    afficherApercuJaquette('', 'Recherche de jaquette indisponible.');
+                });
+        }, 350);
+    }
+
+    var champAuteur = document.querySelector('#auteur');
 
     if (boutonSynopsis && champTitre && champResume) {
         boutonSynopsis.addEventListener('click', function () {
@@ -316,6 +368,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     boutonSynopsis.textContent = 'Remplir le resume';
                 });
         });
+    }
+
+    if (jaquettePreview && champTitre) {
+        if (champAuteur) {
+            champAuteur.addEventListener('input', rechercherJaquetteAuto);
+        }
+
+        champTitre.addEventListener('input', rechercherJaquetteAuto);
+        rechercherJaquetteAuto();
     }
 
     document.addEventListener('keydown', function (event) {

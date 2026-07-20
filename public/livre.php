@@ -65,7 +65,7 @@ include __DIR__ . '/../templates/header.php';
         <p>Le livre demande n'existe pas.</p>
         <a href="catalogue.php">Retour au catalogue</a>
     <?php else: ?>
-        <?php $jaquette = jaquetteLivre($livre['titre'], $livre['couverture'] ?? ''); ?>
+        <?php $jaquette = jaquetteLivre($livre['titre'], $livre['couverture'] ?? '', $livre['auteur'] ?? ''); ?>
         <h2><?= htmlspecialchars($livre['titre']) ?></h2>
         <?php if ($message !== ''): ?>
             <p class="message"><?= htmlspecialchars($message) ?></p>

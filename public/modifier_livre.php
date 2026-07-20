@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/auth.php';
+require_once __DIR__ . '/../config/jaquettes.php';
 
 pageProtegee();
 
@@ -98,6 +99,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (count($erreurs) === 0) {
+        if ($couverture === '') {
+            $couverture = jaquetteLivre($titre, '', $auteur);
+        }
+
         try {
             $sql = "UPDATE livres
                     SET titre = :titre, auteur = :auteur, isbn = :isbn, annee_publication = :annee_publication,
@@ -173,6 +178,14 @@ include __DIR__ . '/../templates/header.php';
             <option value="1" <?= (int) $disponible === 1 ? 'selected' : '' ?>>Disponible</option>
             <option value="0" <?= (int) $disponible === 0 ? 'selected' : '' ?>>Indisponible</option>
         </select>
+
+        <div class="jaquette-preview" data-jaquette-preview hidden>
+            <div class="jaquette-preview-image"></div>
+            <div>
+                <strong>Jaquette detectee</strong>
+                <p data-jaquette-preview-texte>Aucune recherche effectuee.</p>
+            </div>
+        </div>
 
         <label for="resume">Resume</label>
         <textarea id="resume" name="resume" rows="5"><?= htmlspecialchars($resume) ?></textarea>

@@ -1285,6 +1285,42 @@ td a {
     margin-bottom: 18px;
 }
 
+.jaquette-preview {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
+    margin: 2px 0 16px 0;
+    border: 1px solid rgba(116, 192, 252, 0.18);
+    border-radius: 10px;
+    background: rgba(8, 14, 22, 0.7);
+}
+
+.jaquette-preview-image {
+    width: 72px;
+    height: 104px;
+    border-radius: 6px;
+    background:
+        linear-gradient(180deg, rgba(214, 173, 96, 0.15), rgba(8, 14, 22, 0.98)),
+        #0b0e13;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    background-size: cover;
+    background-position: center;
+}
+
+.jaquette-preview strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #f8fbff;
+}
+
+.jaquette-preview p {
+    margin: 0;
+    color: #a7bac8;
+    font-size: 14px;
+}
+
 .ligne-formulaire {
     display: flex;
     gap: 10px;

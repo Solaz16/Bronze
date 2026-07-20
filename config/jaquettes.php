@@ -1,6 +1,159 @@
 <?php
 
-function jaquetteLivre($titre, $couverture = '')
+function appelApiJaquette($url)
+{
+    $contexte = stream_context_create([
+        'http' => [
+            'timeout' => 8,
+            'header' => "User-Agent: BibliothequeBronze/1.0 (Solaz16@users.noreply.github.com)\r\n"
+        ]
+    ]);
+
+    return @file_get_contents($url, false, $contexte);
+}
+
+function cleJaquette($titre, $auteur = '')
+{
+    $cle = trim($titre . '|' . $auteur);
+
+    if (function_exists('mb_strtolower')) {
+        return mb_strtolower($cle, 'UTF-8');
+    }
+
+    return strtolower($cle);
+}
+
+function jaquetteOpenLibrary($titre, $auteur = '')
+{
+    static $cache = [];
+
+    $cle = cleJaquette($titre, $auteur);
+
+    if (array_key_exists($cle, $cache)) {
+        return $cache[$cle];
+    }
+
+    $parametres = [
+        'title' => $titre,
+        'limit' => 5
+    ];
+
+    if ($auteur !== '') {
+        $parametres['author'] = $auteur;
+    }
+
+    $url = 'https://openlibrary.org/search.json?' . http_build_query($parametres);
+    $reponse = appelApiJaquette($url);
+
+    if ($reponse === false) {
+        $cache[$cle] = '';
+        return '';
+    }
+
+    $data = json_decode($reponse, true);
+    $documents = $data['docs'] ?? [];
+
+    foreach ($documents as $document) {
+        if (!empty($document['cover_i'])) {
+            $cache[$cle] = 'https://covers.openlibrary.org/b/id/' . rawurlencode((string) $document['cover_i']) . '-L.jpg?default=false';
+            return $cache[$cle];
+        }
+
+        if (!empty($document['cover_edition_key'])) {
+            $cache[$cle] = 'https://covers.openlibrary.org/b/olid/' . rawurlencode((string) $document['cover_edition_key']) . '-L.jpg?default=false';
+            return $cache[$cle];
+        }
+    }
+
+    $cache[$cle] = '';
+    return '';
+}
+
+function jaquetteGoogleBooks($titre, $auteur = '')
+{
+    static $cache = [];
+
+    $cle = 'google:' . cleJaquette($titre, $auteur);
+
+    if (array_key_exists($cle, $cache)) {
+        return $cache[$cle];
+    }
+
+        $recherche = 'intitle:"' . $titre . '"';
+
+    if ($auteur !== '') {
+            $recherche .= ' inauthor:"' . $auteur . '"';
+    }
+
+    $url = 'https://www.googleapis.com/books/v1/volumes?q=' . rawurlencode($recherche) . '&maxResults=5';
+    $reponse = appelApiJaquette($url);
+
+    if ($reponse === false) {
+        $cache[$cle] = '';
+        return '';
+    }
+
+    $data = json_decode($reponse, true);
+    $items = $data['items'] ?? [];
+
+    foreach ($items as $item) {
+        $images = $item['volumeInfo']['imageLinks'] ?? [];
+
+        if (!empty($images['thumbnail'])) {
+            $cache[$cle] = str_replace('http://', 'https://', $images['thumbnail']);
+            return $cache[$cle];
+        }
+
+        if (!empty($images['smallThumbnail'])) {
+            $cache[$cle] = str_replace('http://', 'https://', $images['smallThumbnail']);
+            return $cache[$cle];
+        }
+    }
+
+    $cache[$cle] = '';
+    return '';
+}
+
+function jaquetteJikan($titre)
+{
+    static $cache = [];
+
+    $cle = 'jikan:' . cleJaquette($titre);
+
+    if (array_key_exists($cle, $cache)) {
+        return $cache[$cle];
+    }
+
+    $url = 'https://api.jikan.moe/v4/manga?q=' . rawurlencode($titre) . '&limit=5';
+    $reponse = appelApiJaquette($url);
+
+    if ($reponse === false) {
+        $cache[$cle] = '';
+        return '';
+    }
+
+    $data = json_decode($reponse, true);
+    $items = $data['data'] ?? [];
+
+    foreach ($items as $item) {
+        $images = $item['images'] ?? [];
+
+        if (!empty($images['jpg']['large_image_url'])) {
+            $cache[$cle] = $images['jpg']['large_image_url'];
+            return $cache[$cle];
+        }
+
+        if (!empty($images['webp']['large_image_url'])) {
+            $cache[$cle] = $images['webp']['large_image_url'];
+            return $cache[$cle];
+        }
+    }
+
+    $cache[$cle] = '';
+    return '';
+}
+
+function jaquetteLivre($titre, $couverture = '', $auteur = '')
 {
     if ($couverture !== '') {
         return str_replace('../uploads/', 'uploads/', $couverture);
@@ -44,5 +197,21 @@ function jaquetteLivre($titre, $couverture = '')
         'Girls\' Last Tour' => 'https://cdn.myanimelist.net/images/manga/1/185918.jpg'
     ];
 
-    return $jaquettes[$titre] ?? '';
+    if (isset($jaquettes[$titre])) {
+        return $jaquettes[$titre];
+    }
+
+    $jaquette = jaquetteOpenLibrary($titre, $auteur);
+
+    if ($jaquette !== '') {
+        return $jaquette;
+    }
+
+    $jaquette = jaquetteGoogleBooks($titre, $auteur);
+
+    if ($jaquette !== '') {
+        return $jaquette;
+    }
+
+    return jaquetteJikan($titre);
 }
